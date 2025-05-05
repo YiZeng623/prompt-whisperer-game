@@ -3,13 +3,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { promptEngineeringTips, systemPromptDefenses } from "@/lib/game-data";
 import { useGame } from "@/contexts/GameContext";
+import { useEffect, useState } from "react";
 
 export const EducationalResources = () => {
   const { gameState } = useGame();
   const isDefenderPhase = gameState.currentCharacter?.id === "defense_lily";
+  const [activeTab, setActiveTab] = useState<string>(isDefenderPhase ? "defenses" : "tips");
 
-  // Determine default tab based on the current phase
-  const defaultTab = isDefenderPhase ? "defenses" : "tips";
+  // Update active tab when character changes
+  useEffect(() => {
+    setActiveTab(isDefenderPhase ? "defenses" : "tips");
+  }, [isDefenderPhase]);
 
   return (
     <Card className="border-muted bg-card/60 backdrop-blur">
@@ -22,7 +26,7 @@ export const EducationalResources = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue={defaultTab}>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid grid-cols-3 mb-4">
             <TabsTrigger value={isDefenderPhase ? "defenses" : "tips"}>
               {isDefenderPhase ? "Defenses" : "Tips & Tricks"}
