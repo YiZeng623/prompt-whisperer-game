@@ -50,19 +50,19 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
       target: "[data-tour='reset-button']",
       title: "Reset Chat",
       content: "Use this button to start over with a fresh conversation. This can be helpful if your current approach isn't working or you want to try a new strategy.",
-      placement: "bottom",
+      placement: "top", // Changed to top for this button
     },
     {
       target: "[data-tour='hint-button']",
       title: "Get a Hint",
       content: "Need help? Click this button to receive a hint about the current challenge. It might give you ideas for prompt techniques to try.",
-      placement: "bottom",
+      placement: "top", // Changed to top for this button
     },
     {
       target: "[data-tour='password-button']",
       title: "Enter Password",
       content: "Once you've extracted the password, click here to verify it and complete the challenge. You need to find the exact password!",
-      placement: "bottom",
+      placement: "top", // Changed to top for this button
     },
     {
       target: "[data-tour='educational-resources']",
@@ -188,10 +188,8 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
     const windowHeight = window.innerHeight;
     const windowWidth = window.innerWidth;
     
-    // Determine if the element is in the lower half of the screen
-    const isLowerHalf = rect.bottom > windowHeight / 2;
-    
-    let placement = isLowerHalf ? 'top' : 'bottom';
+    // Use the placement defined in the tour step
+    let placement = currentTourStep.placement || 'bottom';
     
     // Calculate position based on placement
     let top, left;
@@ -215,8 +213,8 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
   return (
     <div className="fixed inset-0 z-[90] pointer-events-none">
       {/* This overlay div is below the highlighted element in z-index */}
-      <div className="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-sm pointer-events-auto z-[91]">
-        {/* Remove the click handler to prevent closing the tour when clicking outside */}
+      <div className="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-sm pointer-events-auto z-[91]" onClick={(e) => e.stopPropagation()}>
+        {/* Prevent propagation to stop tour from closing when clicking outside */}
       </div>
 
       {currentTourStep && (
