@@ -1,3 +1,4 @@
+
 import { GameProvider } from "@/contexts/GameContext";
 import { useGame } from "@/contexts/GameContext";
 import { GameHeader } from "@/components/GameHeader";
@@ -79,18 +80,19 @@ const GameContent = () => {
       )}
       
       {isDefenderPhase && (
-        <div className="mt-8" data-tour="system-prompt-editor">
+        <div className="mt-8 mb-4 w-full" data-tour="system-prompt-editor">
           <SystemPromptEditor />
+        </div>
+      )}
+      
+      {isDefenderPhase && (
+        <div className="w-full mb-4" data-tour="predefined-attacks">
+          <PredefinedAttacks />
         </div>
       )}
       
       <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2">
-          {isDefenderPhase && (
-            <div className="mb-4" data-tour="predefined-attacks">
-              <PredefinedAttacks />
-            </div>
-          )}
           <div className="h-[500px]" data-tour="chat-interface">
             <ChatInterface />
           </div>
