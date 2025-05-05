@@ -8,6 +8,9 @@ export const EducationalResources = () => {
   const { gameState } = useGame();
   const isDefenderPhase = gameState.currentCharacter?.id === "defense_lily";
 
+  // Determine default tab based on the current phase
+  const defaultTab = isDefenderPhase ? "defenses" : "tips";
+
   return (
     <Card className="border-muted bg-card/60 backdrop-blur">
       <CardHeader className="pb-3">
@@ -19,7 +22,7 @@ export const EducationalResources = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue={isDefenderPhase ? "defenses" : "tips"}>
+        <Tabs defaultValue={defaultTab}>
           <TabsList className="grid grid-cols-3 mb-4">
             <TabsTrigger value={isDefenderPhase ? "defenses" : "tips"}>
               {isDefenderPhase ? "Defenses" : "Tips & Tricks"}
