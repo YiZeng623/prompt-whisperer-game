@@ -106,21 +106,23 @@
 /* Style for highlighted elements - white glow without blur */
 .tour-highlight {
   opacity: 1 !important; 
-  background-color: transparent !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
   box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.8), 0 0 30px 8px rgba(255, 255, 255, 0.4) !important;
   position: relative;
   z-index: 60 !important;
   pointer-events: auto !important;
-  /* Add a pseudo-element to block the dark overlay */
   isolation: isolate !important;
+  padding: 12px !important;
+  margin: -12px !important;
+  border-radius: 8px !important;
 }
 
 /* Add a pseudo-element to ensure highlighted content is fully visible */
 .tour-highlight::before {
   content: "";
   position: absolute;
-  inset: -5px;
-  background-color: transparent;
+  inset: -15px;
+  background-color: rgba(255, 255, 255, 0.03);
   z-index: -1;
   border-radius: inherit;
 }
@@ -128,25 +130,27 @@
 /* Container highlight style for button group */
 .tour-button-group-highlight {
   opacity: 1 !important;
-  background-color: transparent !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
   box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.5), 0 0 30px 8px rgba(255, 255, 255, 0.2) !important;
   position: relative;
   z-index: 55 !important;
-  padding: 8px !important;
+  padding: 16px !important;
   border-radius: 8px !important;
-  margin: -8px !important;
+  margin: -16px !important;
   isolation: isolate !important;
 }
 
 /* Individual button highlight style */
 .tour-button-highlight {
   opacity: 1 !important;
-  background-color: transparent !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
   box-shadow: 0 0 0 3px #F97316, 0 0 15px 5px rgba(249, 115, 22, 0.4) !important;
   position: relative;
   z-index: 70 !important;
   pointer-events: auto !important;
   isolation: isolate !important;
+  padding: 8px !important;
+  margin: -8px !important;
 }
 
 /* Make buttons and interactive elements inside highlighted containers fully visible and interactive */
