@@ -130,6 +130,9 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
         if (!isButtonStep) {
           // Scroll to the target element
           targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          // For button steps, scroll to the top of the page
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         }
         
         // Apply highlight to the target

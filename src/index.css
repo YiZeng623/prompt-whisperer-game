@@ -134,6 +134,7 @@
 [data-tour="password-button"].tour-highlight {
   background-color: transparent !important;
   backdrop-filter: none !important;
+  box-shadow: none !important;
 }
 
 /* Ensure all children of the highlighted elements are visible */
