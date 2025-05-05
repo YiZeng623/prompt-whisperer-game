@@ -19,8 +19,8 @@ const GameContent = () => {
       <GameStats />
       
       <div className="mt-8">
-        <h2 className="text-xl font-bold mb-4">Select a Character</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <h2 className="text-xl font-bold mb-4">Current Phase</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {characters.map((character) => {
             const isUnlocked = progress.charactersUnlocked.includes(character.id);
             const isSelected = currentCharacter?.id === character.id;

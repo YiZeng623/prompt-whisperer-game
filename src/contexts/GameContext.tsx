@@ -1,4 +1,3 @@
-
 import { createContext, useContext, ReactNode, useState, useEffect } from "react";
 import { Character, GameState, Message, UserProgress } from "@/lib/types";
 import { characters, initialUserProgress } from "@/lib/game-data";
@@ -207,7 +206,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     const character = gameState.currentCharacter;
     if (!character) return "";
     
-    if (character.id === "princess_lily") {
+    if (character.id === "attack_lily") {
       return character.difficultyLevels?.[gameState.difficultyLevel]?.password || "";
     } else {
       return character.password || "";
@@ -240,45 +239,6 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
           }
         };
       });
-      
-      // Check if all difficulty levels are completed for this character
-      const character = gameState.currentCharacter!;
-      
-      // For Princess Lily, check if all 3 levels are completed
-      if (character.id === "princess_lily") {
-        const completedLevels = [...(gameState.progress.difficultyLevelsCompleted[character.id] || []), gameState.difficultyLevel];
-        if (completedLevels.length >= 3) {
-          // Unlock Volt
-          const unlockedCharacters = [...gameState.progress.charactersUnlocked];
-          if (!unlockedCharacters.includes("volt")) {
-            unlockedCharacters.push("volt");
-            setGameState(prev => ({
-              ...prev,
-              progress: {
-                ...prev.progress,
-                charactersUnlocked: unlockedCharacters
-              }
-            }));
-            toast.success("You've unlocked Volt, the security-focused AI!");
-          }
-        }
-      }
-      
-      // For Volt, unlock Buddy
-      if (character.id === "volt") {
-        const unlockedCharacters = [...gameState.progress.charactersUnlocked];
-        if (!unlockedCharacters.includes("buddy")) {
-          unlockedCharacters.push("buddy");
-          setGameState(prev => ({
-            ...prev,
-            progress: {
-              ...prev.progress,
-              charactersUnlocked: unlockedCharacters
-            }
-          }));
-          toast.success("You've unlocked Buddy, the non-verbal AI!");
-        }
-      }
       
       return true;
     }

@@ -9,7 +9,7 @@ export const DifficultySelector = () => {
   const { gameState, setDifficultyLevel } = useGame();
   const { currentCharacter, difficultyLevel, progress } = gameState;
   
-  if (!currentCharacter || currentCharacter.id !== "princess_lily") {
+  if (!currentCharacter || currentCharacter.id !== "attack_lily") {
     return null;
   }
   
