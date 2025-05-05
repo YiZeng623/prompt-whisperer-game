@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -95,62 +96,93 @@
   }
 }
 
-/* Tour-related styles - simplified approach */
+/* Tour-related styles */
 .tour-active [data-tour] {
+  opacity: 0.4;
+  transition: opacity 0.3s ease-in-out;
+  pointer-events: none;
   position: relative;
   z-index: 45;
 }
 
-/* The highlighted element - completely visible */
+/* Style for highlighted elements - completely transparent inside with white glow */
 .tour-highlight {
-  position: relative;
-  z-index: 100 !important;
-  pointer-events: auto !important;
+  opacity: 1 !important; 
+  background: transparent !important;
   box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.8), 0 0 30px 8px rgba(255, 255, 255, 0.4) !important;
-  border-radius: 8px !important;
+  position: relative;
+  z-index: 60 !important;
+  pointer-events: auto !important;
+  backdrop-filter: none !important;
 }
 
 /* Container highlight style for button group */
 .tour-button-group-highlight {
-  position: relative;
-  z-index: 90 !important;
+  opacity: 1 !important;
+  background: transparent !important;
   box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.5), 0 0 30px 8px rgba(255, 255, 255, 0.2) !important;
+  position: relative;
+  z-index: 55 !important;
   padding: 8px !important;
   border-radius: 8px !important;
   margin: -8px !important;
+  backdrop-filter: none !important;
 }
 
-/* Individual button highlight style */
+/* Individual button highlight style - increased z-index to show above overlay */
 .tour-button-highlight {
-  position: relative;
-  z-index: 110 !important;
+  opacity: 1 !important;
+  background: transparent !important;
   box-shadow: 0 0 0 3px #F97316, 0 0 15px 5px rgba(249, 115, 22, 0.4) !important;
+  position: relative;
+  z-index: 70 !important;
   pointer-events: auto !important;
+  isolation: isolate !important;
+  backdrop-filter: none !important;
+}
+
+/* Make buttons and interactive elements inside highlighted containers fully visible and interactive */
+.tour-highlight button,
+.tour-highlight [role="button"],
+.tour-highlight input,
+.tour-highlight a,
+.tour-button-group-highlight button,
+.tour-button-group-highlight [role="button"],
+.tour-button-highlight button,
+.tour-button-highlight [role="button"] {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  z-index: 75 !important;
+  position: relative;
+  background-color: transparent !important;
 }
 
 /* Special style for the button-specific tour steps */
 [data-tour="reset-button"].tour-highlight,
 [data-tour="hint-button"].tour-highlight,
 [data-tour="password-button"].tour-highlight {
-  box-shadow: 0 0 0 3px #F97316, 0 0 15px 5px rgba(249, 115, 22, 0.4) !important;
-  z-index: 110 !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  z-index: 70 !important;
 }
 
 /* Group container for the button tour steps */
 [data-tour="button-group"] {
-  z-index: 90 !important;
+  background-color: transparent !important;
+  z-index: 65 !important;
 }
 
-/* Ensure all children of highlighted elements are visible and interactive */
+/* Ensure all children of the highlighted elements are fully visible */
 .tour-highlight *,
 .tour-button-group-highlight *,
 .tour-button-highlight * {
+  opacity: 1 !important;
   visibility: visible !important;
   pointer-events: auto !important;
   z-index: inherit !important;
 }
 
-/* Keep existing animation styles */
+/* Animation styles */
 @keyframes glowing {
   0% {
     box-shadow: 0 0 5px rgba(255, 255, 255, 0.8), 0 0 10px rgba(255, 255, 255, 0.8);

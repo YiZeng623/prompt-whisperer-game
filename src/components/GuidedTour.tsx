@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
@@ -11,7 +12,7 @@ interface TourStep {
   placement?: "top" | "bottom" | "left" | "right";
   centered?: boolean;
   highlightType?: "regular" | "buttons";
-  specificButton?: "reset" | "hint" | "password";
+  specificButton?: "reset" | "hint" | "password"; // To highlight a specific button
 }
 
 export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolean }) => {
@@ -135,30 +136,46 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
     const isButtonStep = currentTourStep.highlightType === "buttons";
     
     // For button steps, handle special button highlighting
-    if (isButtonStep && currentTourStep.specificButton) {
-      // Find the button group
-      const buttonGroupEl = document.querySelector('[data-tour="button-group"]');
-      
-      if (buttonGroupEl) {
-        // Add highlight to the button group
-        buttonGroupEl.classList.add('tour-button-group-highlight');
-        
-        // Find and highlight the specific button
-        const targetButton = document.querySelector(`[data-tour="${currentTourStep.specificButton}-button"]`);
-        if (targetButton) {
-          targetButton.classList.add('tour-button-highlight');
+    if (isButtonStep) {
+      // Create a button group container if it doesn't exist
+      let buttonGroupEl = document.querySelector('[data-tour="button-group"]');
+      if (!buttonGroupEl) {
+        // Find the button container in the chat header
+        const buttonContainer = document.querySelector('.CardHeader .flex.items-center.gap-2');
+        if (buttonContainer) {
+          // Add the data-tour attribute to the button container
+          buttonContainer.setAttribute('data-tour', 'button-group');
+          buttonGroupEl = buttonContainer;
         }
       }
+      
+      // Apply appropriate highlights
+      if (buttonGroupEl) {
+        // Apply the group highlight
+        buttonGroupEl.classList.add('tour-button-group-highlight');
+        
+        // Apply individual button highlight based on the step
+        if (currentTourStep.specificButton) {
+          const targetButton = document.querySelector(`[data-tour="${currentTourStep.specificButton}-button"]`);
+          if (targetButton) {
+            targetButton.classList.add('tour-button-highlight');
+          }
+        }
+      }
+      
+      // Scroll to the top for button steps
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       // Regular highlight for non-button steps
-      const targetEl = document.querySelector(currentTourStep.target);
+      const targetEl = document.querySelector(currentTourStep.target) as HTMLElement;
       if (targetEl) {
-        // Add highlight to the target element
-        targetEl.classList.add('tour-highlight');
-        
-        // Scroll to the target element with a delay to ensure DOM is ready
+        // Add a small delay to ensure DOM is ready
         setTimeout(() => {
+          // Scroll to the target element
           targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          
+          // Apply highlight to the target
+          targetEl.classList.add('tour-highlight');
         }, 100);
       }
     }
@@ -172,7 +189,7 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
         el.classList.remove('tour-button-highlight');
       });
     };
-  }, [currentStep, showTour, tourSteps]);
+  }, [currentStep, showTour, tourSteps, isDefenderTour]);
 
   const handleNextStep = () => {
     if (currentStep < tourSteps.length - 1) {
@@ -269,10 +286,11 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
 
   return (
     <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 1000 }}>
-      {/* Simple dark overlay */}
+      {/* Transparent overlay */}
       <TourOverlay 
         isActive={true} 
         onClick={(e) => e.stopPropagation()} 
+        highlightType={currentTourStep?.highlightType}
       />
 
       {/* Popover content */}
