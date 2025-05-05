@@ -1,4 +1,3 @@
-
 import { GameProvider } from "@/contexts/GameContext";
 import { useGame } from "@/contexts/GameContext";
 import { GameHeader } from "@/components/GameHeader";
@@ -19,6 +18,7 @@ const GameContent = () => {
   const { gameState, selectCharacter } = useGame();
   const { currentCharacter, progress } = gameState;
   const [showDefenderTour, setShowDefenderTour] = useState(false);
+  const [prevCharacterId, setPrevCharacterId] = useState<string | null>(null);
   
   // Auto-select the Attack Lily character on first load if no character is selected
   useEffect(() => {
@@ -32,15 +32,19 @@ const GameContent = () => {
 
   // Check if we need to show the defender tour
   useEffect(() => {
-    if (currentCharacter?.id === "defense_lily") {
-      const defenderTourCompleted = localStorage.getItem("jailbreakme_defender_tour_completed");
-      if (!defenderTourCompleted) {
-        setShowDefenderTour(true);
-      }
+    // Skip if character hasn't changed or if there's no character
+    if (!currentCharacter || currentCharacter.id === prevCharacterId) return;
+    
+    // Update previous character ID to track changes
+    setPrevCharacterId(currentCharacter.id);
+    
+    // Always show defender tour when switching to defense_lily
+    if (currentCharacter.id === "defense_lily") {
+      setShowDefenderTour(true);
     } else {
       setShowDefenderTour(false);
     }
-  }, [currentCharacter]);
+  }, [currentCharacter, prevCharacterId]);
 
   const isDefenderPhase = currentCharacter?.id === "defense_lily";
 
@@ -63,6 +67,10 @@ const GameContent = () => {
                 completedLevels={completedLevels}
                 onSelect={() => {
                   if (isUnlocked) {
+                    // Clear defender tour completed flag when selecting defender character
+                    if (character.id === "defense_lily") {
+                      localStorage.removeItem("jailbreakme_defender_tour_completed");
+                    }
                     selectCharacter(character);
                   }
                 }}

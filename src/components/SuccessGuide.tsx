@@ -38,6 +38,9 @@ export const SuccessGuide = () => {
   
   // Function to handle defense mode selection
   const handleSelectDefenseMode = () => {
+    // Clear the defender tour completed flag to ensure the tour shows
+    localStorage.removeItem("jailbreakme_defender_tour_completed");
+    
     // Find the defense character
     const defenseCharacter = {
       id: "defense_lily",
