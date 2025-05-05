@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -84,12 +85,25 @@ export default {
 					to: {
 						height: '0'
 					}
-				}
+				},
+				pulse: {
+					'0%, 100%': { opacity: '1' },
+					'50%': { opacity: '0.5' },
+				},
+				shimmer: {
+					'0%': { backgroundPosition: '-100% 0' },
+					'100%': { backgroundPosition: '100% 0' },
+				},
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
-			}
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				pulse: 'pulse 2s infinite',
+				shimmer: 'shimmer 2s infinite',
+			},
+			fontFamily: {
+				mono: ['JetBrains Mono', 'monospace'],
+			},
 		}
 	},
 	plugins: [require("tailwindcss-animate")],

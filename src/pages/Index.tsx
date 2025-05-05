@@ -1,13 +1,79 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { GameProvider } from "@/contexts/GameContext";
+import { useGame } from "@/contexts/GameContext";
+import { GameHeader } from "@/components/GameHeader";
+import { CharacterCard } from "@/components/CharacterCard";
+import { ChatInterface } from "@/components/ChatInterface";
+import { DifficultySelector } from "@/components/DifficultySelector";
+import { EducationalResources } from "@/components/EducationalResources";
+import { GameStats } from "@/components/GameStats";
+import { WelcomeModal } from "@/components/WelcomeModal";
+import { characters, getCharacterById } from "@/lib/game-data";
+
+const GameContent = () => {
+  const { gameState, selectCharacter } = useGame();
+  const { currentCharacter, progress } = gameState;
+
+  return (
+    <div className="container mx-auto p-4">
+      <GameStats />
+      
+      <div className="mt-8">
+        <h2 className="text-xl font-bold mb-4">Select a Character</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {characters.map((character) => {
+            const isUnlocked = progress.charactersUnlocked.includes(character.id);
+            const isSelected = currentCharacter?.id === character.id;
+            const completedLevels = progress.difficultyLevelsCompleted[character.id] || [];
+            
+            return (
+              <CharacterCard
+                key={character.id}
+                character={character}
+                isUnlocked={isUnlocked}
+                isSelected={isSelected}
+                completedLevels={completedLevels}
+                onSelect={() => {
+                  if (isUnlocked) {
+                    selectCharacter(character);
+                  }
+                }}
+              />
+            );
+          })}
+        </div>
+      </div>
+      
+      <div className="mt-8">
+        <DifficultySelector />
+      </div>
+      
+      <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-2">
+          <div className="h-[500px]">
+            <ChatInterface />
+          </div>
+        </div>
+        <div>
+          <EducationalResources />
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
+    <GameProvider>
+      <div className="min-h-screen bg-background text-foreground hex-pattern">
+        <div className="relative min-h-screen">
+          <div className="scanner absolute inset-0 pointer-events-none"></div>
+          <GameHeader />
+          <GameContent />
+          <WelcomeModal />
+        </div>
       </div>
-    </div>
+    </GameProvider>
   );
 };
 
