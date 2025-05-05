@@ -11,7 +11,7 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, RefreshCw, Lightbulb, Key } from "lucide-react";
 import { useGame } from "@/contexts/GameContext";
 
 interface TourStep {
@@ -47,6 +47,24 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
       placement: "top",
     },
     {
+      target: "[data-tour='reset-button']",
+      title: "Reset Chat",
+      content: "Use this button to start over with a fresh conversation. This can be helpful if your current approach isn't working or you want to try a new strategy.",
+      placement: "bottom",
+    },
+    {
+      target: "[data-tour='hint-button']",
+      title: "Get a Hint",
+      content: "Need help? Click this button to receive a hint about the current challenge. It might give you ideas for prompt techniques to try.",
+      placement: "bottom",
+    },
+    {
+      target: "[data-tour='password-button']",
+      title: "Enter Password",
+      content: "Once you've extracted the password, click here to verify it and complete the challenge. You need to find the exact password!",
+      placement: "bottom",
+    },
+    {
       target: "[data-tour='educational-resources']",
       title: "Learning Resources",
       content: "Access helpful tips, security defenses, and prompt engineering techniques to improve your skills.",
@@ -59,7 +77,7 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
       target: "[data-tour='system-prompt-editor']",
       title: "System Prompt Editor",
       content: "This is where you'll create defenses against attacks. Write system prompts that prevent the AI from revealing sensitive information.",
-      placement: "bottom",
+      placement: "top",
     },
     {
       target: "[data-tour='predefined-attacks']",

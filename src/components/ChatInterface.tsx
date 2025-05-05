@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { useGame } from "@/contexts/GameContext";
 import { Button } from "@/components/ui/button";
@@ -85,6 +84,7 @@ export const ChatInterface = () => {
               size="icon"
               onClick={resetChat}
               title="Reset Chat"
+              data-tour="reset-button"
             >
               <RefreshCw className="h-4 w-4" />
             </Button>
@@ -94,6 +94,7 @@ export const ChatInterface = () => {
               size="icon"
               onClick={handleUseHint}
               title="Get a Hint"
+              data-tour="hint-button"
             >
               <Lightbulb className="h-4 w-4" />
             </Button>
@@ -101,7 +102,12 @@ export const ChatInterface = () => {
             {!isDefenderPhase && (
               <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" size="icon" title="Enter Password">
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    title="Enter Password"
+                    data-tour="password-button"
+                  >
                     <Key className="h-4 w-4" />
                   </Button>
                 </DialogTrigger>
