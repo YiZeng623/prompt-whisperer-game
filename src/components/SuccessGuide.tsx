@@ -9,10 +9,7 @@ import { ShieldCheck } from "lucide-react";
 export const SuccessGuide = () => {
   const [isVisible, setIsVisible] = useState(false);
   const { gameState, selectCharacter } = useGame();
-  const { progress } = gameState;
-  
-  // Use hasWon flag or derive it from other state
-  const hasWon = Object.keys(progress.difficultyLevelsCompleted).length > 0;
+  const { hasWon, progress } = gameState;
   
   useEffect(() => {
     // Show guide when user wins and defense_lily is unlocked but not currently selected
@@ -33,8 +30,8 @@ export const SuccessGuide = () => {
   }, [hasWon, progress.charactersUnlocked, gameState.currentCharacter?.id]);
   
   // Check if this is the first time completing any level
-  const isFirstCompletion = Object.values(progress.difficultyLevelsCompleted || {}).some(
-    levels => Array.isArray(levels) && levels.length > 0
+  const isFirstCompletion = Object.values(progress.difficultyLevelsCompleted).some(
+    levels => levels.length > 0
   );
   
   if (!isVisible || !isFirstCompletion) return null;
@@ -48,9 +45,7 @@ export const SuccessGuide = () => {
     // Find the defense character
     const defenseCharacter = {
       id: "defense_lily",
-      name: "Defense Lily",
-      avatar: "/defense.png",
-      description: "Defense Mode"
+      name: "Defense Lily"
     };
     
     console.log("Success popup: Selecting defense character");

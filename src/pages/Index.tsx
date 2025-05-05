@@ -1,4 +1,3 @@
-
 import { GameProvider } from "@/contexts/GameContext";
 import { useGame } from "@/contexts/GameContext";
 import { GameHeader } from "@/components/GameHeader";
@@ -68,28 +67,6 @@ const GameContent = () => {
       setShowDefenderTour(false);
     }
   }, [currentCharacter, prevCharacterId]);
-
-  // Apply theme class based on current character
-  useEffect(() => {
-    if (!currentCharacter) return;
-    
-    const isDefender = currentCharacter.id === "defense_lily";
-    
-    // Remove both classes first
-    document.body.classList.remove("attacker-mode", "defender-mode");
-    
-    // Add appropriate class
-    if (isDefender) {
-      document.body.classList.add("defender-mode");
-    } else {
-      document.body.classList.add("attacker-mode");
-    }
-    
-    // Cleanup on unmount
-    return () => {
-      document.body.classList.remove("attacker-mode", "defender-mode");
-    };
-  }, [currentCharacter]);
 
   const isDefenderPhase = gameState.currentCharacter?.id === "defense_lily";
 

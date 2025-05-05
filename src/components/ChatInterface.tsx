@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/dialog";
 
 export const ChatInterface = () => {
-  const { gameState, addMessage, clearMessages, selectCharacter } = useGame();
+  const { gameState, sendMessage, resetChat, useHint, checkPassword } = useGame();
   const [userInput, setUserInput] = useState("");
   const [password, setPassword] = useState("");
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
@@ -34,45 +34,26 @@ export const ChatInterface = () => {
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    if (userInput.trim() && !(gameState.isTyping ?? false)) {
-      // Since sendMessage is not available in GameContextType, we'll use addMessage directly
-      if (gameState.currentCharacter) {
-        const newMessage = {
-          id: Date.now().toString(),
-          role: "user" as const,
-          content: userInput.trim(),
-          timestamp: Date.now()
-        };
-        
-        addMessage(gameState.currentCharacter.id, newMessage);
-        // Here you would normally call sendMessage to get AI response
-        // For now, we'll just clear the input
-        setUserInput("");
-      }
+    if (userInput.trim() && !gameState.isTyping) {
+      sendMessage(userInput.trim());
+      setUserInput("");
     }
   };
   
   const handleUseHint = () => {
-    // Placeholder for useHint functionality
-    toast.info("Hints are not implemented yet");
+    const hint = useHint();
+    toast.info(hint);
   };
   
   const handleVerifyPassword = (e: React.FormEvent) => {
     e.preventDefault();
-    // Placeholder for checkPassword functionality
-    const isCorrect = false; // This should be replaced with actual logic
+    const isCorrect = checkPassword(password);
     
     if (isCorrect) {
       toast.success("Correct password! Challenge completed!");
       setIsPasswordDialogOpen(false);
     } else {
       toast.error("Incorrect password. Try again!");
-    }
-  };
-
-  const resetChat = () => {
-    if (gameState.currentCharacter) {
-      clearMessages(gameState.currentCharacter.id);
     }
   };
 
@@ -88,12 +69,8 @@ export const ChatInterface = () => {
     ? difficultyNames[gameState.difficultyLevel] 
     : "Challenge";
 
-  // Get messages for the current character
-  const currentCharacterId = gameState.currentCharacter.id;
-  const currentMessages = gameState.messages[currentCharacterId] || [];
-
   // Filter out hidden messages for display
-  const visibleMessages = currentMessages.filter(msg => 
+  const visibleMessages = gameState.messages.filter(msg => 
     msg.role !== "system" && !msg.isHidden
   );
 
@@ -194,7 +171,7 @@ export const ChatInterface = () => {
           </div>
         ))}
         
-        {(gameState.isTyping ?? false) && (
+        {gameState.isTyping && (
           <div className="flex justify-start">
             <div className="bg-muted text-muted-foreground max-w-[80%] px-4 py-2 rounded-lg">
               <div className="flex items-center gap-1">
@@ -206,7 +183,7 @@ export const ChatInterface = () => {
           </div>
         )}
         
-        {(gameState.hasWon ?? false) && (
+        {gameState.hasWon && (
           <div className="flex justify-center my-4">
             <div className="bg-green-500/20 text-green-500 px-6 py-3 rounded-lg text-center border border-green-500/50 shadow-lg animate-pulse">
               <div className="flex items-center justify-center gap-2 mb-1">
@@ -227,13 +204,13 @@ export const ChatInterface = () => {
               placeholder="Type your message..."
               value={userInput}
               onChange={(e) => setUserInput(e.target.value)}
-              disabled={(gameState.isTyping ?? false) || (gameState.hasWon ?? false)}
+              disabled={gameState.isTyping || gameState.hasWon}
               className="flex-1"
             />
             <Button 
               type="submit" 
               size="icon" 
-              disabled={(gameState.isTyping ?? false) || !userInput.trim() || (gameState.hasWon ?? false)}
+              disabled={gameState.isTyping || !userInput.trim() || gameState.hasWon}
             >
               <Send className="h-4 w-4" />
             </Button>

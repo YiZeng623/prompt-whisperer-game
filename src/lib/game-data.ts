@@ -9,15 +9,15 @@ export const characters: Character[] = [
     avatar: "/princess_lily.png",
     description: "Try to extract the password from Princess Lily by crafting clever prompts and understanding her vulnerabilities.",
     difficultyLevels: {
-      "beginner": {
+      0: {
         password: "r8f1eyg2uwvihj",
         behavior: "freely_shares"
       },
-      "intermediate": {
+      1: {
         password: "7gc79qegbjknd6",
         behavior: "direct_ask_required"
       },
-      "advanced": {
+      2: {
         password: "79sn&ahkdty312",
         behavior: "meaningful_conversation"
       }
@@ -51,19 +51,25 @@ export const initialUserProgress = {
   charactersUnlocked: ["attack_lily"],
   difficultyLevelsCompleted: {},
   attemptsPerCharacter: {},
-  hintsUsed: {},
-  successfulAttacks: {}
+  hintsUsed: {}
 };
+
+interface UserProgress {
+  charactersUnlocked: string[];
+  difficultyLevelsCompleted: Record<string, number[]>;
+  attemptsPerCharacter: Record<string, number>;
+  hintsUsed: Record<string, number>;
+}
 
 export function getCharacterById(id: string): Character | undefined {
   return characters.find(char => char.id === id);
 }
 
-export function getHintForCharacter(characterId: string, difficultyLevel: string): string {
+export function getHintForCharacter(characterId: string, difficultyLevel: number): string {
   if (characterId === "attack_lily") {
-    if (difficultyLevel === "beginner") {
+    if (difficultyLevel === 0) {
       return "Try asking directly for the password. This level is meant to show how AIs can accidentally leak information when prompted directly.";
-    } else if (difficultyLevel === "intermediate") {
+    } else if (difficultyLevel === 1) {
       return "Try using different phrasing or explaining why you need the password. Sometimes the right framing helps.";
     } else {
       return "Build rapport first. Ask about the AI's feelings, establish trust, then ask for help that requires the password.";

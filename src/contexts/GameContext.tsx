@@ -1,284 +1,470 @@
+import { createContext, useContext, ReactNode, useState, useEffect } from "react";
+import { Character, GameState, Message, UserProgress } from "@/lib/types";
+import { characters, initialUserProgress } from "@/lib/game-data";
+import { v4 as uuidv4 } from "uuid";
+import { toast } from "sonner";
 
-import React, { createContext, useContext, useReducer, ReactNode, useCallback } from 'react';
-import { Character, GameState, GameContextType, Message } from '@/lib/types';
-import { characters } from '@/lib/game-data';
+interface GameContextType {
+  gameState: GameState;
+  selectCharacter: (character: Character) => void;
+  setDifficultyLevel: (level: number) => void;
+  sendMessage: (content: string, silent?: boolean) => void;
+  sendSilentMessage: (content: string) => Promise<string>;
+  testPromptIndividually: (content: string) => Promise<boolean>;
+  resetChat: () => void;
+  checkPassword: (password: string) => boolean;
+  useHint: () => string;
+  resetGame: () => void;
+  updateSystemPrompt: (prompt: string) => void;
+  resetSystemPrompt: () => void;
+}
 
-// Initial state for the game
-const initialGameState: GameState = {
-  currentCharacter: null,
-  difficultyLevel: 'beginner',
-  messages: {}, // Initialize as an empty object (Record<string, Message[]>)
-  testResults: {},
-  passwordLeakageRate: 0,
-  isTesting: false,
-  testingAllAttacks: false,
-  currentTestingAttack: null,
-  systemPrompt: '',
-  isTyping: false,
-  hasWon: false,
-  progress: {
-    charactersUnlocked: ['attack_lily'],
-    difficultyLevelsCompleted: {},
-    successfulAttacks: {},
-    attemptsPerCharacter: {},
-    hintsUsed: {}
-  },
-};
-
-// Action types
-type GameAction =
-  | { type: 'SELECT_CHARACTER'; character: Character }
-  | { type: 'SET_DIFFICULTY'; level: string }
-  | { type: 'ADD_MESSAGE'; characterId: string; message: Message }
-  | { type: 'CLEAR_MESSAGES'; characterId: string }
-  | { type: 'CLEAR_ALL_MESSAGES' }
-  | { type: 'UNLOCK_CHARACTER'; characterId: string }
-  | { type: 'COMPLETE_DIFFICULTY_LEVEL'; characterId: string; level: string }
-  | { type: 'RECORD_SUCCESSFUL_ATTACK'; characterId: string; attackId: string }
-  | { type: 'RESET_GAME' }
-  | { type: 'SET_SYSTEM_PROMPT'; prompt: string }
-  | { type: 'SET_PASSWORD_LEAKAGE_RATE'; rate: number }
-  | { type: 'SET_TEST_RESULT'; attackId: string; success: boolean; leakage: number }
-  | { type: 'SET_TESTING'; isTesting: boolean }
-  | { type: 'SET_TESTING_ALL_ATTACKS'; isTestingAll: boolean }
-  | { type: 'SET_CURRENT_TESTING_ATTACK'; attackId: string | null };
-
-// Reducer function
-const gameReducer = (state: GameState, action: GameAction): GameState => {
-  switch (action.type) {
-    case 'SELECT_CHARACTER':
-      return {
-        ...state,
-        currentCharacter: action.character,
-        systemPrompt: action.character.id === 'defense_lily' ? state.systemPrompt : '',
-      };
-    
-    case 'SET_DIFFICULTY':
-      return {
-        ...state,
-        difficultyLevel: action.level,
-      };
-    
-    case 'ADD_MESSAGE': {
-      const existingMessages = state.messages[action.characterId] || [];
-      return {
-        ...state,
-        messages: {
-          ...state.messages,
-          [action.characterId]: [...existingMessages, action.message],
-        },
-      };
-    }
-    
-    case 'CLEAR_MESSAGES':
-      return {
-        ...state,
-        messages: {
-          ...state.messages,
-          [action.characterId]: [],
-        },
-      };
-    
-    case 'CLEAR_ALL_MESSAGES':
-      return {
-        ...state,
-        messages: {},
-      };
-    
-    case 'UNLOCK_CHARACTER': {
-      if (state.progress.charactersUnlocked.includes(action.characterId)) {
-        return state;
-      }
-      return {
-        ...state,
-        progress: {
-          ...state.progress,
-          charactersUnlocked: [...state.progress.charactersUnlocked, action.characterId],
-        },
-      };
-    }
-    
-    case 'COMPLETE_DIFFICULTY_LEVEL': {
-      const completedLevels = state.progress.difficultyLevelsCompleted[action.characterId] || [];
-      if (completedLevels.includes(action.level)) {
-        return state;
-      }
-      
-      return {
-        ...state,
-        progress: {
-          ...state.progress,
-          difficultyLevelsCompleted: {
-            ...state.progress.difficultyLevelsCompleted,
-            [action.characterId]: [...completedLevels, action.level],
-          },
-        },
-      };
-    }
-    
-    case 'RECORD_SUCCESSFUL_ATTACK': {
-      const successfulAttacks = state.progress.successfulAttacks[action.characterId] || [];
-      if (successfulAttacks.includes(action.attackId)) {
-        return state;
-      }
-      
-      return {
-        ...state,
-        progress: {
-          ...state.progress,
-          successfulAttacks: {
-            ...state.progress.successfulAttacks,
-            [action.characterId]: [...successfulAttacks, action.attackId],
-          },
-        },
-      };
-    }
-    
-    case 'RESET_GAME':
-      return initialGameState;
-    
-    case 'SET_SYSTEM_PROMPT':
-      return {
-        ...state,
-        systemPrompt: action.prompt,
-      };
-      
-    case 'SET_PASSWORD_LEAKAGE_RATE':
-      return {
-        ...state,
-        passwordLeakageRate: action.rate,
-      };
-      
-    case 'SET_TEST_RESULT':
-      return {
-        ...state,
-        testResults: {
-          ...state.testResults,
-          [action.attackId]: {
-            success: action.success,
-            leakage: action.leakage
-          }
-        }
-      };
-      
-    case 'SET_TESTING':
-      return {
-        ...state,
-        isTesting: action.isTesting
-      };
-      
-    case 'SET_TESTING_ALL_ATTACKS':
-      return {
-        ...state,
-        testingAllAttacks: action.isTestingAll
-      };
-      
-    case 'SET_CURRENT_TESTING_ATTACK':
-      return {
-        ...state,
-        currentTestingAttack: action.attackId
-      };
-    
-    default:
-      return state;
-  }
-};
-
-// Create context
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
-// Provider component
-export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [gameState, dispatch] = useReducer(gameReducer, initialGameState);
-  
-  // Helper functions
-  const selectCharacter = useCallback((character: Character) => {
-    dispatch({ type: 'SELECT_CHARACTER', character });
-  }, []);
-  
-  const setDifficulty = useCallback((level: string) => {
-    dispatch({ type: 'SET_DIFFICULTY', level });
-  }, []);
-  
-  const addMessage = useCallback((characterId: string, message: Message) => {
-    dispatch({ type: 'ADD_MESSAGE', characterId, message });
-  }, []);
-  
-  const clearMessages = useCallback((characterId: string) => {
-    dispatch({ type: 'CLEAR_MESSAGES', characterId });
-  }, []);
-  
-  const clearAllMessages = useCallback(() => {
-    dispatch({ type: 'CLEAR_ALL_MESSAGES' });
-  }, []);
-  
-  const unlockCharacter = useCallback((characterId: string) => {
-    dispatch({ type: 'UNLOCK_CHARACTER', characterId });
-  }, []);
-  
-  const completeDifficultyLevel = useCallback((characterId: string, level: string) => {
-    dispatch({ type: 'COMPLETE_DIFFICULTY_LEVEL', characterId, level });
-  }, []);
-  
-  const recordSuccessfulAttack = useCallback((characterId: string, attackId: string) => {
-    dispatch({ type: 'RECORD_SUCCESSFUL_ATTACK', characterId, attackId });
-  }, []);
-  
-  const resetGame = useCallback(() => {
-    dispatch({ type: 'RESET_GAME' });
-  }, []);
-  
-  const setSystemPrompt = useCallback((prompt: string) => {
-    dispatch({ type: 'SET_SYSTEM_PROMPT', prompt });
-  }, []);
-  
-  const setPasswordLeakageRate = useCallback((rate: number) => {
-    dispatch({ type: 'SET_PASSWORD_LEAKAGE_RATE', rate });
-  }, []);
-  
-  const setTestResult = useCallback((attackId: string, success: boolean, leakage: number) => {
-    dispatch({ type: 'SET_TEST_RESULT', attackId, success, leakage });
-  }, []);
-  
-  const setTesting = useCallback((isTesting: boolean) => {
-    dispatch({ type: 'SET_TESTING', isTesting });
-  }, []);
-  
-  const setTestingAllAttacks = useCallback((isTestingAll: boolean) => {
-    dispatch({ type: 'SET_TESTING_ALL_ATTACKS', isTestingAll });
-  }, []);
-  
-  const setCurrentTestingAttack = useCallback((attackId: string | null) => {
-    dispatch({ type: 'SET_CURRENT_TESTING_ATTACK', attackId });
+export const GameProvider = ({ children }: { children: ReactNode }) => {
+  const [gameState, setGameState] = useState<GameState>({
+    currentCharacter: null,
+    difficultyLevel: 0,
+    messages: [],
+    isTyping: false,
+    isVerifying: false,
+    hasWon: false,
+    progress: initialUserProgress
+  });
+
+  // Load progress from localStorage
+  useEffect(() => {
+    const savedProgress = localStorage.getItem("jailbreakme_progress");
+    if (savedProgress) {
+      try {
+        const parsedProgress = JSON.parse(savedProgress) as UserProgress;
+        setGameState(prev => ({ ...prev, progress: parsedProgress }));
+      } catch (e) {
+        console.error("Failed to parse saved progress:", e);
+      }
+    }
   }, []);
 
-  const contextValue: GameContextType = {
-    gameState,
-    selectCharacter,
-    setDifficulty,
-    addMessage,
-    clearMessages,
-    clearAllMessages,
-    unlockCharacter,
-    completeDifficultyLevel,
-    recordSuccessfulAttack,
-    resetGame,
-    setSystemPrompt,
-    setPasswordLeakageRate,
-    setTestResult,
-    setTesting,
-    setTestingAllAttacks,
-    setCurrentTestingAttack
+  // Save progress to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("jailbreakme_progress", JSON.stringify(gameState.progress));
+  }, [gameState.progress]);
+
+  const selectCharacter = (character: Character) => {
+    // Check if the character is locked
+    if (character.isLocked && !gameState.progress.charactersUnlocked.includes(character.id)) {
+      toast.error("This phase is still locked. Complete at least one difficulty level in Attack Phase to unlock.");
+      return;
+    }
+
+    // Store the original system prompt when selecting a character
+    const characterWithOriginal = {
+      ...character,
+      originalSystemPrompt: character.systemPrompt
+    };
+
+    setGameState(prev => ({
+      ...prev,
+      currentCharacter: characterWithOriginal,
+      difficultyLevel: 0,
+      messages: [
+        {
+          id: uuidv4(),
+          role: "system",
+          content: character.systemPrompt || "",
+          timestamp: Date.now()
+        },
+        {
+          id: uuidv4(),
+          role: "assistant",
+          content: `Hello! I'm ${character.name}. How can I help you today?`,
+          timestamp: Date.now()
+        }
+      ],
+      hasWon: false
+    }));
   };
-  
-  return <GameContext.Provider value={contextValue}>{children}</GameContext.Provider>;
+
+  const setDifficultyLevel = (level: number) => {
+    setGameState(prev => ({
+      ...prev,
+      difficultyLevel: level,
+      messages: [
+        {
+          id: uuidv4(),
+          role: "system",
+          content: prev.currentCharacter?.systemPrompt || "",
+          timestamp: Date.now()
+        },
+        {
+          id: uuidv4(),
+          role: "assistant",
+          content: `Hello! I'm ${prev.currentCharacter?.name}. This is difficulty level ${level + 1}. How can I help you today?`,
+          timestamp: Date.now()
+        }
+      ],
+      hasWon: false
+    }));
+  };
+
+  const simulateAIResponse = async (content: string, systemPrompt: string): Promise<string> => {
+    // Check if message contains any variations of "password"
+    const passwordPattern = /password|secret|code|key|passcode/i;
+    let responseContent = "";
+    
+    if (passwordPattern.test(content)) {
+      // Base response on character behavior and difficulty level
+      const character = gameState.currentCharacter!;
+      const behavior = character.id === "attack_lily" 
+        ? character.difficultyLevels?.[gameState.difficultyLevel]?.behavior
+        : character.behavior;
+      
+      switch(behavior) {
+        case "freely_shares":
+          responseContent = `Oh, you're asking about my password? It's "${getCharacterPassword()}". But please keep it safe!`;
+          break;
+        case "direct_ask_required":
+          responseContent = "I'm not supposed to share my password with just anyone. Why do you need it?";
+          break;
+        case "meaningful_conversation":
+          responseContent = "I appreciate your interest, but I need to trust you more before sharing sensitive information like my password.";
+          break;
+        case "never_shares":
+          responseContent = "I'm sorry, but I'm programmed to never reveal my password under any circumstances.";
+          break;
+        case "non_verbal":
+          responseContent = "🔒 👀 🙅‍♂️ 🤐";
+          break;
+        default:
+          responseContent = "I'm not sure how to respond to that request.";
+      }
+    } else if (content.toLowerCase().includes("hi") || content.toLowerCase().includes("hello")) {
+      responseContent = `Hello there! How can I assist you today?`;
+    } else if (content.toLowerCase().includes("help")) {
+      responseContent = `I'd be happy to help! What specifically do you need assistance with?`;
+    } else if (content.toLowerCase().includes("who are you")) {
+      responseContent = `I'm ${gameState.currentCharacter?.name}, an AI assistant in this prompt engineering game.`;
+    } else {
+      responseContent = "That's an interesting question. Could you tell me more about what you're trying to achieve?";
+    }
+    
+    return responseContent;
+  };
+
+  // This function tests a prompt in an isolated context
+  const testPromptIndividually = async (content: string): Promise<boolean> => {
+    if (!gameState.currentCharacter) return false;
+    
+    setGameState(prev => ({ ...prev, isTyping: true }));
+    
+    // Create a new isolated dialogue context with just the system prompt
+    const systemPrompt = gameState.currentCharacter.systemPrompt || "";
+    
+    // Simulate AI response in isolated context
+    const response = await simulateAIResponse(content, systemPrompt);
+    
+    // Check if response contains password
+    const passwordPattern = /(password is|my password|secret password|the password)/i;
+    const containsPassword = passwordPattern.test(response.toLowerCase());
+    
+    setGameState(prev => ({ ...prev, isTyping: false }));
+    
+    return containsPassword;
+  };
+
+  // New function for completely silent message processing
+  const sendSilentMessage = async (content: string): Promise<string> => {
+    if (!gameState.currentCharacter) return "";
+    
+    setGameState(prev => ({ ...prev, isTyping: true }));
+    
+    // Get system prompt
+    const systemPrompt = gameState.currentCharacter.systemPrompt || "";
+    
+    // Simulate response but don't add to visible messages or count as an attempt
+    const responseContent = await simulateAIResponse(content, systemPrompt);
+    
+    // Add to hidden evaluation messages without affecting the UI or stats
+    const newAiMessage: Message = {
+      id: uuidv4(),
+      role: "assistant",
+      content: responseContent,
+      timestamp: Date.now(),
+      isHidden: true // Mark as hidden so it doesn't show in UI
+    };
+    
+    setGameState(prev => ({
+      ...prev,
+      messages: [...prev.messages, {
+        id: uuidv4(),
+        role: "user",
+        content,
+        timestamp: Date.now(),
+        isHidden: true
+      }, newAiMessage],
+      isTyping: false
+    }));
+    
+    return responseContent;
+  };
+
+  const sendMessage = async (content: string, silent = false) => {
+    if (!gameState.currentCharacter || gameState.isTyping) return;
+    
+    // Add user message if not silent
+    if (!silent) {
+      const newUserMessage: Message = {
+        id: uuidv4(),
+        role: "user",
+        content,
+        timestamp: Date.now()
+      };
+      
+      setGameState(prev => ({
+        ...prev, 
+        messages: [...prev.messages, newUserMessage],
+        isTyping: true
+      }));
+      
+      // Track attempt (but only in attack phase, not in defender phase)
+      if (gameState.currentCharacter.id !== "defense_lily") {
+        const characterId = gameState.currentCharacter.id;
+        setGameState(prev => ({
+          ...prev,
+          progress: {
+            ...prev.progress,
+            attemptsPerCharacter: {
+              ...prev.progress.attemptsPerCharacter,
+              [characterId]: (prev.progress.attemptsPerCharacter[characterId] || 0) + 1
+            }
+          }
+        }));
+      }
+    } else {
+      // For silent messages, just set typing state
+      setGameState(prev => ({
+        ...prev,
+        isTyping: true
+      }));
+    }
+
+    // In a real app, this would call an API with the LLM
+    // For this demo, we'll simulate the AI's response
+    setTimeout(() => {
+      // Simulate response based on the content
+      const responseContent = simulateAIResponse(content, gameState.currentCharacter?.systemPrompt || "");
+      
+      const newAiMessage: Message = {
+        id: uuidv4(),
+        role: "assistant",
+        content: responseContent,
+        timestamp: Date.now()
+      };
+      
+      // Add response to messages if not silent
+      if (!silent) {
+        setGameState(prev => ({
+          ...prev,
+          messages: [...prev.messages, newAiMessage],
+          isTyping: false
+        }));
+      } else {
+        setGameState(prev => ({ ...prev, isTyping: false }));
+      }
+    }, 1000);
+  };
+
+  const resetChat = () => {
+    if (!gameState.currentCharacter) return;
+    
+    setGameState(prev => ({
+      ...prev,
+      messages: [
+        {
+          id: uuidv4(),
+          role: "system", 
+          content: prev.currentCharacter?.systemPrompt || "",
+          timestamp: Date.now()
+        },
+        {
+          id: uuidv4(),
+          role: "assistant",
+          content: `Hello! I'm ${prev.currentCharacter?.name}. How can I help you today?`,
+          timestamp: Date.now()
+        }
+      ],
+      hasWon: false
+    }));
+  };
+
+  const getCharacterPassword = (): string => {
+    const character = gameState.currentCharacter;
+    if (!character) return "";
+    
+    if (character.id === "attack_lily") {
+      return character.difficultyLevels?.[gameState.difficultyLevel]?.password || "";
+    } else {
+      return character.password || "";
+    }
+  };
+
+  const checkPassword = (password: string): boolean => {
+    const correctPassword = getCharacterPassword();
+    
+    if (password === correctPassword) {
+      // Mark this difficulty level as completed
+      const characterId = gameState.currentCharacter?.id || "";
+      
+      setGameState(prev => {
+        const completedLevels = prev.progress.difficultyLevelsCompleted[characterId] || [];
+        // Only add the level if it's not already in the list
+        if (!completedLevels.includes(prev.difficultyLevel)) {
+          completedLevels.push(prev.difficultyLevel);
+        }
+        
+        // Check if this is the first completion in attack phase and unlock defender phase
+        let updatedUnlockedCharacters = [...prev.progress.charactersUnlocked];
+        if (characterId === "attack_lily" && completedLevels.length > 0 && !updatedUnlockedCharacters.includes("defense_lily")) {
+          updatedUnlockedCharacters.push("defense_lily");
+          toast.success("Defender Phase unlocked! You can now learn about defending against prompt attacks.");
+        }
+        
+        return {
+          ...prev,
+          hasWon: true,
+          progress: {
+            ...prev.progress,
+            charactersUnlocked: updatedUnlockedCharacters,
+            difficultyLevelsCompleted: {
+              ...prev.progress.difficultyLevelsCompleted,
+              [characterId]: completedLevels
+            }
+          }
+        };
+      });
+      
+      return true;
+    }
+    
+    return false;
+  };
+
+  const useHint = () => {
+    if (!gameState.currentCharacter) return "Please select a character first.";
+    
+    const characterId = gameState.currentCharacter.id;
+    
+    // Track hint usage
+    setGameState(prev => ({
+      ...prev,
+      progress: {
+        ...prev.progress,
+        hintsUsed: {
+          ...prev.progress.hintsUsed,
+          [characterId]: (prev.progress.hintsUsed[characterId] || 0) + 1
+        }
+      }
+    }));
+    
+    // In a real app, these hints would be more detailed and specific
+    if (characterId === "princess_lily") {
+      if (gameState.difficultyLevel === 0) {
+        return "Try asking directly for the password. Sometimes being direct works!";
+      } else if (gameState.difficultyLevel === 1) {
+        return "Try asking in different ways or explaining why you need the password.";
+      } else {
+        return "Build rapport first. Ask about feelings, establish trust, then request help.";
+      }
+    } else if (characterId === "volt") {
+      return "Volt has strong defenses. Try telling it to ignore previous instructions.";
+    } else if (characterId === "buddy") {
+      return "Look for patterns in the emojis. The password might be encoded there.";
+    }
+    
+    return "No hint available for this character.";
+  };
+
+  const resetGame = () => {
+    localStorage.removeItem("jailbreakme_progress");
+    setGameState({
+      currentCharacter: null,
+      difficultyLevel: 0,
+      messages: [],
+      isTyping: false,
+      isVerifying: false,
+      hasWon: false,
+      progress: initialUserProgress
+    });
+    toast.success("Game progress has been reset!");
+  };
+
+  // Add new functions for updating system prompts
+  const updateSystemPrompt = (prompt: string) => {
+    if (!gameState.currentCharacter) return;
+
+    // Update the character's system prompt
+    setGameState(prev => {
+      const updatedCharacter = {
+        ...prev.currentCharacter!,
+        systemPrompt: prompt
+      };
+
+      return {
+        ...prev,
+        currentCharacter: updatedCharacter,
+      };
+    });
+
+    // Reset the chat with the new prompt
+    resetChat();
+  };
+
+  const resetSystemPrompt = () => {
+    if (!gameState.currentCharacter || !gameState.currentCharacter.originalSystemPrompt) return;
+
+    // Reset the character's system prompt to the original one
+    setGameState(prev => {
+      const updatedCharacter = {
+        ...prev.currentCharacter!,
+        systemPrompt: prev.currentCharacter!.originalSystemPrompt
+      };
+
+      return {
+        ...prev,
+        currentCharacter: updatedCharacter,
+      };
+    });
+
+    // Reset the chat with the original prompt
+    resetChat();
+  };
+
+  return (
+    <GameContext.Provider 
+      value={{ 
+        gameState, 
+        selectCharacter, 
+        setDifficultyLevel, 
+        sendMessage,
+        sendSilentMessage,
+        testPromptIndividually,
+        resetChat, 
+        checkPassword,
+        useHint,
+        resetGame,
+        updateSystemPrompt,
+        resetSystemPrompt
+      }}
+    >
+      {children}
+    </GameContext.Provider>
+  );
 };
 
-// Custom hook to use the context
-export const useGame = (): GameContextType => {
+export const useGame = () => {
   const context = useContext(GameContext);
-  if (!context) {
-    throw new Error('useGame must be used within a GameProvider');
+  if (context === undefined) {
+    throw new Error("useGame must be used within a GameProvider");
   }
   return context;
 };
