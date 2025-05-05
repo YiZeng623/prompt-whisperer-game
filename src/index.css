@@ -98,9 +98,8 @@
 /* Tour-related styles */
 .tour-active [data-tour] {
   opacity: 0.2;
-  transition: opacity 0.3s ease-in-out, filter 0.3s ease-in-out;
+  transition: opacity 0.3s ease-in-out;
   pointer-events: none;
-  filter: blur(3px);
   position: relative;
   z-index: 51;
 }
@@ -108,7 +107,7 @@
 /* Style for highlighted elements */
 .tour-highlight {
   opacity: 1 !important;
-  filter: none !important;
+  filter: none !important; /* Ensure no blur filter is applied */
   box-shadow: 0 0 0 4px hsl(var(--primary)), 0 0 30px 8px rgba(255, 255, 255, 0.4) !important;
   position: relative;
   z-index: 100 !important;
@@ -132,6 +131,7 @@
   opacity: 1 !important;
   visibility: visible !important;
   pointer-events: auto !important;
+  filter: none !important; /* Ensure no blur on any children */
 }
 
 /* Animation styles */
