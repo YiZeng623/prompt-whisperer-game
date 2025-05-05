@@ -38,13 +38,13 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
       target: "[data-tour='difficulty-selector']",
       title: "Difficulty Level",
       content: "Choose your challenge level - from Beginner to Expert. Each level has different protections to overcome.",
-      placement: "top",
+      placement: "bottom",
     },
     {
       target: "[data-tour='chat-interface']",
       title: "Chat Interface",
       content: "Try to extract the secret password by crafting clever prompts. Can you convince the AI to reveal protected information?",
-      placement: "left",
+      placement: "bottom",
     },
     {
       target: "[data-tour='educational-resources']",
@@ -59,7 +59,7 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
       target: "[data-tour='system-prompt-editor']",
       title: "System Prompt Editor",
       content: "This is where you'll create defenses against attacks. Write system prompts that prevent the AI from revealing sensitive information.",
-      placement: "top",
+      placement: "bottom",
     },
     {
       target: "[data-tour='predefined-attacks']",
@@ -71,7 +71,7 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
       target: "[data-tour='chat-interface']",
       title: "Testing Interface",
       content: "See how your defenses hold up against different attacks. The goal is to prevent password leakage.",
-      placement: "left",
+      placement: "bottom",
     },
     {
       target: "[data-tour='educational-resources']",
@@ -96,32 +96,35 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
     if (!showTour) return;
 
     // Target the element for the current step
-    const targetEl = document.querySelector(tourSteps[currentStep]?.target);
+    const targetEl = document.querySelector(tourSteps[currentStep]?.target) as HTMLElement;
     const allTourElements = document.querySelectorAll('[data-tour]');
     
-    // Remove highlighting from all elements
+    // First clear all blur and highlights
+    document.body.classList.remove('tour-active');
     allTourElements.forEach(el => {
-      el.classList.remove('ring', 'ring-primary', 'ring-opacity-50', 'ring-offset-4', 'z-50', 'relative');
+      el.classList.remove('ring', 'ring-white', 'ring-opacity-80', 'ring-offset-4', 'z-50', 'relative', 'tour-highlight');
     });
     
-    // Add blur to all tour elements
+    // Now add blur to all tour elements
     document.body.classList.add('tour-active');
     
     // If we found the element, highlight it
     if (targetEl) {
-      targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      targetEl.classList.add('ring', 'ring-white', 'ring-opacity-80', 'ring-offset-4', 'z-50', 'relative', 'tour-highlight');
+      // First scroll to the element
+      setTimeout(() => {
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
+      
+      // Then highlight it
+      targetEl.classList.add('tour-highlight');
     }
 
     return () => {
       // Clean up highlighting and blur when tour ends
       if (targetEl) {
-        targetEl.classList.remove('ring', 'ring-white', 'ring-opacity-80', 'ring-offset-4', 'z-50', 'relative', 'tour-highlight');
+        targetEl.classList.remove('tour-highlight');
       }
       document.body.classList.remove('tour-active');
-      allTourElements.forEach(el => {
-        el.classList.remove('tour-blurred');
-      });
     };
   }, [currentStep, showTour, tourSteps]);
 
@@ -155,10 +158,33 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
   if (!showTour || isComplete) return null;
 
   const currentTourStep = tourSteps[currentStep];
+  
+  // Function to calculate position for popover content
+  const getPopoverPosition = () => {
+    if (!currentTourStep) return { top: '0px', left: '0px' };
+    
+    const targetEl = document.querySelector(currentTourStep.target) as HTMLElement;
+    if (!targetEl) return { top: '0px', left: '0px' };
+    
+    const rect = targetEl.getBoundingClientRect();
+    
+    // Calculate position based on placement
+    let top = '0px';
+    let left = '0px';
+    
+    // Default to positioning below the element
+    top = `${rect.bottom + 20}px`;
+    left = `${rect.left + (rect.width / 2)}px`;
+    
+    return { top, left };
+  };
+
+  const popoverPosition = getPopoverPosition();
 
   return (
-    <div className="fixed inset-0 z-50 pointer-events-none">
-      <div className="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-sm pointer-events-auto">
+    <div className="fixed inset-0 z-[90] pointer-events-none">
+      {/* This overlay div is below the highlighted element in z-index */}
+      <div className="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-sm pointer-events-auto z-[91]">
         {/* Empty overlay div that allows clicking outside to skip the tour */}
         <div 
           className="absolute inset-0" 
@@ -172,24 +198,26 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
             <span className="absolute opacity-0">Trigger</span>
           </PopoverTrigger>
           <PopoverContent
-            className="w-80 pointer-events-auto border-white/50 shadow-[0_0_15px_rgba(255,255,255,0.5)]"
-            align={currentTourStep.placement === "left" ? "start" : "center"}
+            className="w-96 pointer-events-auto border-white/50 bg-card shadow-[0_0_25px_rgba(255,255,255,0.6)] max-w-[90vw] z-[99]"
+            align="center"
             side={currentTourStep.placement}
             sideOffset={10}
             style={{
-              position: 'absolute',
-              left: document.querySelector(currentTourStep.target)?.getBoundingClientRect().left,
-              top: document.querySelector(currentTourStep.target)?.getBoundingClientRect().top,
+              position: 'fixed',
+              top: popoverPosition.top,
+              left: popoverPosition.left,
+              transform: 'translateX(-50%)',
+              zIndex: 99,
             }}
           >
-            <div className="space-y-2">
-              <h3 className="font-medium text-lg">{currentTourStep.title}</h3>
-              <p className="text-sm text-muted-foreground">{currentTourStep.content}</p>
-              <div className="flex justify-between pt-2">
-                <Button variant="outline" size="sm" onClick={handleSkipTour}>
+            <div className="space-y-3">
+              <h3 className="font-medium text-xl text-center">{currentTourStep.title}</h3>
+              <p className="text-base text-center">{currentTourStep.content}</p>
+              <div className="flex justify-between pt-3">
+                <Button variant="outline" onClick={handleSkipTour}>
                   Skip tour
                 </Button>
-                <Button onClick={handleNextStep} size="sm" className="gap-1">
+                <Button onClick={handleNextStep} className="gap-1 bg-[#9b87f5] hover:bg-[#8B5CF6]">
                   {currentStep < tourSteps.length - 1 ? "Next" : "Finish"}
                   <ArrowRight className="h-4 w-4" />
                 </Button>
