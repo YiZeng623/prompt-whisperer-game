@@ -14,10 +14,10 @@ export const TourOverlay: React.FC<TourOverlayProps> = ({
   
   return (
     <div 
-      className="fixed inset-0 bg-black/30 backdrop-blur-sm" 
+      className="fixed inset-0 bg-black/70 backdrop-blur-sm" 
       style={{ 
         pointerEvents: "auto",
-        zIndex: 90 
+        zIndex: 50 
       }} 
       onClick={onClick}
     />

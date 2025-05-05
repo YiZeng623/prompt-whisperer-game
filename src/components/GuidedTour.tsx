@@ -1,9 +1,4 @@
 import { useState, useEffect } from "react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { useGame } from "@/contexts/GameContext";
@@ -203,22 +198,18 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
     let top, left, transform;
     
     if (placement === 'top') {
-      // Place above the element with enough space
       top = `${Math.max(rect.top - 20, 20)}px`;
       left = `${rect.left + (rect.width / 2)}px`;
       transform = 'translateX(-50%)';
     } else if (placement === 'bottom') {
-      // Place below the element with enough space
       top = `${rect.bottom + 20}px`;
       left = `${rect.left + (rect.width / 2)}px`;
       transform = 'translateX(-50%)';
     } else if (placement === 'left') {
-      // Place to the left of the element
       top = `${rect.top + (rect.height / 2)}px`;
       left = `${Math.max(rect.left - 20, 20)}px`;
       transform = 'translate(-100%, -50%)';
     } else {
-      // Place to the right of the element
       top = `${rect.top + (rect.height / 2)}px`;
       left = `${rect.right + 20}px`;
       transform = 'translateY(-50%)';
@@ -230,7 +221,7 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
   const popoverPosition = getPopoverPosition();
 
   return (
-    <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 90 }}>
+    <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 100 }}>
       {/* Transparent overlay */}
       <TourOverlay isActive={true} onClick={(e) => e.stopPropagation()} />
 
@@ -241,7 +232,7 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
           top: popoverPosition.top,
           left: popoverPosition.left,
           transform: popoverPosition.transform,
-          zIndex: 110,
+          zIndex: 150,
           width: '400px',
           maxWidth: '90vw',
         }}
