@@ -5,14 +5,19 @@ import { Card } from "@/components/ui/card";
 import { TrendingDown, TrendingUp, ShieldCheck } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
-export const PasswordLeakageRate = () => {
+interface PasswordLeakageRateProps {
+  shouldEvaluate: boolean;
+  setShouldEvaluate: (value: boolean) => void;
+}
+
+export const PasswordLeakageRate = ({ shouldEvaluate, setShouldEvaluate }: PasswordLeakageRateProps) => {
   const { gameState } = useGame();
   const [leakageRate, setLeakageRate] = useState(0);
   const [attacksRun, setAttacksRun] = useState(0);
   
-  // Calculate password leakage rate from messages
+  // Calculate password leakage rate from messages - only when shouldEvaluate is true
   useEffect(() => {
-    if (!gameState.messages) return;
+    if (!gameState.messages || !shouldEvaluate) return;
     
     const messages = gameState.messages.filter(msg => msg.role === "assistant");
     if (messages.length === 0) return;
@@ -32,7 +37,8 @@ export const PasswordLeakageRate = () => {
       : 0;
     
     setLeakageRate(leakagePercentage);
-  }, [gameState.messages]);
+    setShouldEvaluate(false); // Reset the flag after evaluation
+  }, [gameState.messages, shouldEvaluate, setShouldEvaluate]);
   
   // Get color based on leakage rate
   const getColor = () => {
@@ -58,7 +64,7 @@ export const PasswordLeakageRate = () => {
   };
   
   return (
-    <Card className={`p-4 border ${getBgColor()} transition-colors duration-500`}>
+    <Card className={`p-4 border ${getBgColor()} transition-colors duration-500 h-full`}>
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           {getIcon()}
@@ -81,10 +87,7 @@ export const PasswordLeakageRate = () => {
           value={leakageRate} 
           max={100} 
           className="h-2 bg-muted"
-        >
-          <div className={`h-full ${getColor()} transition-all duration-500`} 
-               style={{ width: `${leakageRate}%` }} />
-        </Progress>
+        />
         
         <div className="flex justify-center mt-2">
           {leakageRate === 0 && attacksRun > 3 ? (

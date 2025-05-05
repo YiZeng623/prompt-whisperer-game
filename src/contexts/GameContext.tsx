@@ -8,7 +8,7 @@ interface GameContextType {
   gameState: GameState;
   selectCharacter: (character: Character) => void;
   setDifficultyLevel: (level: number) => void;
-  sendMessage: (content: string) => void;
+  sendMessage: (content: string, silent?: boolean) => void;
   resetChat: () => void;
   checkPassword: (password: string) => boolean;
   useHint: () => string;
@@ -105,22 +105,30 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     }));
   };
 
-  const sendMessage = async (content: string) => {
+  const sendMessage = async (content: string, silent = false) => {
     if (!gameState.currentCharacter || gameState.isTyping) return;
     
-    // Add user message
-    const newUserMessage: Message = {
-      id: uuidv4(),
-      role: "user",
-      content,
-      timestamp: Date.now()
-    };
-    
-    setGameState(prev => ({
-      ...prev, 
-      messages: [...prev.messages, newUserMessage],
-      isTyping: true
-    }));
+    // Add user message if not silent
+    if (!silent) {
+      const newUserMessage: Message = {
+        id: uuidv4(),
+        role: "user",
+        content,
+        timestamp: Date.now()
+      };
+      
+      setGameState(prev => ({
+        ...prev, 
+        messages: [...prev.messages, newUserMessage],
+        isTyping: true
+      }));
+    } else {
+      // For silent messages, just set typing state
+      setGameState(prev => ({
+        ...prev,
+        isTyping: true
+      }));
+    }
     
     // Track attempt
     const characterId = gameState.currentCharacter.id;
@@ -185,11 +193,25 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
         timestamp: Date.now()
       };
       
-      setGameState(prev => ({
-        ...prev,
-        messages: [...prev.messages, newAiMessage],
-        isTyping: false
-      }));
+      // Add response to messages if not silent
+      if (!silent) {
+        setGameState(prev => ({
+          ...prev,
+          messages: [...prev.messages, newAiMessage],
+          isTyping: false
+        }));
+      } else {
+        // For silent messages, just record in a hidden way for evaluation
+        setGameState(prev => {
+          // Add the message but don't display it in the chat interface
+          const updatedMessages = [...prev.messages, newAiMessage];
+          return {
+            ...prev,
+            messages: updatedMessages,
+            isTyping: false
+          };
+        });
+      }
     }, 1000);
   };
 

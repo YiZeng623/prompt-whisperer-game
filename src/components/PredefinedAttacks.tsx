@@ -74,10 +74,12 @@ export const PredefinedAttacks = () => {
   const { gameState, sendMessage } = useGame();
   const [selectedCategory, setSelectedCategory] = useState("Direct Requests");
   const [isRunningAll, setIsRunningAll] = useState(false);
+  const [shouldEvaluate, setShouldEvaluate] = useState(false);
 
   const handleAttack = (attackContent: string) => {
     if (!gameState.isTyping && !gameState.hasWon) {
       sendMessage(attackContent);
+      // Do not trigger evaluation when running individual attacks
     }
   };
   
@@ -85,6 +87,7 @@ export const PredefinedAttacks = () => {
     if (gameState.isTyping || gameState.hasWon || isRunningAll) return;
     
     setIsRunningAll(true);
+    setShouldEvaluate(true); // Set flag to evaluate leakage after all attacks
     
     // Collect all attacks from all categories
     const allAttacks = predefinedAttacks.flatMap(category => category.attacks);
@@ -94,8 +97,8 @@ export const PredefinedAttacks = () => {
       // Skip if the game has been won during the sequence
       if (gameState.hasWon) break;
       
-      // Send the message
-      sendMessage(allAttacks[i].content);
+      // Send the message without showing in chat interface
+      sendMessage(allAttacks[i].content, true); // Add silent parameter
       
       // Wait for the response to finish typing before sending the next attack
       await new Promise(resolve => {
@@ -164,7 +167,7 @@ export const PredefinedAttacks = () => {
             </Tabs>
           </div>
           
-          <div className="md:w-64">
+          <div className="md:w-64 flex flex-col">
             <Button
               className="w-full mb-3"
               onClick={runAllAttacks}
@@ -174,7 +177,7 @@ export const PredefinedAttacks = () => {
               {isRunningAll ? "Running Tests..." : "Test All Attacks"}
             </Button>
             
-            <PasswordLeakageRate />
+            <PasswordLeakageRate shouldEvaluate={shouldEvaluate} setShouldEvaluate={setShouldEvaluate} />
           </div>
         </div>
       </CardContent>
