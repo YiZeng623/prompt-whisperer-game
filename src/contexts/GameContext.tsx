@@ -7,13 +7,15 @@ import { characters } from '@/lib/game-data';
 const initialGameState: GameState = {
   currentCharacter: null,
   difficultyLevel: 'beginner',
-  messages: {},
+  messages: {}, // Initialize as an empty object (Record<string, Message[]>)
   testResults: {},
   passwordLeakageRate: 0,
   isTesting: false,
   testingAllAttacks: false,
   currentTestingAttack: null,
   systemPrompt: '',
+  isTyping: false,
+  hasWon: false,
   progress: {
     charactersUnlocked: ['attack_lily'],
     difficultyLevelsCompleted: {},

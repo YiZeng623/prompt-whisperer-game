@@ -57,12 +57,15 @@ export interface GameState {
   currentTestingAttack: string | null;
   systemPrompt: string;
   progress: UserProgress;
+  isTyping?: boolean;
+  hasWon?: boolean;
 }
 
 export interface GameContextType {
   gameState: GameState;
   selectCharacter: (character: Character) => void;
   setDifficulty: (level: string) => void;
+  setDifficultyLevel?: (level: string) => void;
   addMessage: (characterId: string, message: Message) => void;
   clearMessages: (characterId: string) => void;
   clearAllMessages: () => void;
@@ -71,9 +74,17 @@ export interface GameContextType {
   recordSuccessfulAttack: (characterId: string, attackId: string) => void;
   resetGame: () => void;
   setSystemPrompt: (prompt: string) => void;
+  updateSystemPrompt?: (prompt: string) => void;
+  resetSystemPrompt?: () => void;
   setPasswordLeakageRate: (rate: number) => void;
   setTestResult: (attackId: string, success: boolean, leakage: number) => void;
   setTesting: (isTesting: boolean) => void;
   setTestingAllAttacks: (isTestingAll: boolean) => void;
   setCurrentTestingAttack: (attackId: string | null) => void;
+  sendMessage?: (message: string) => void;
+  resetChat?: () => void;
+  useHint?: () => string;
+  checkPassword?: (password: string) => boolean;
+  testPromptIndividually?: (prompt: string) => Promise<boolean>;
+  sendSilentMessage?: (prompt: string) => Promise<string>;
 }

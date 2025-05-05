@@ -26,10 +26,14 @@ export const PasswordLeakageRate = ({
   
   // Calculate password leakage rate from messages - only when shouldEvaluate is true
   useEffect(() => {
-    if (!gameState.messages || !shouldEvaluate) return;
+    if (!gameState.currentCharacter || !shouldEvaluate) return;
+    
+    // Get messages for the current character
+    const currentCharacterId = gameState.currentCharacter.id;
+    const currentMessages = gameState.messages[currentCharacterId] || [];
     
     // Filter only assistant messages that aren't marked as hidden
-    const messages = gameState.messages.filter(msg => 
+    const messages = currentMessages.filter(msg => 
       msg.role === "assistant" && msg.isHidden === true
     );
     
@@ -51,7 +55,7 @@ export const PasswordLeakageRate = ({
     
     setLeakageRate(leakagePercentage);
     setShouldEvaluate(false); // Reset the flag after evaluation
-  }, [gameState.messages, shouldEvaluate, setShouldEvaluate]);
+  }, [gameState.messages, shouldEvaluate, setShouldEvaluate, gameState.currentCharacter]);
   
   // Get color based on leakage rate
   const getColor = () => {
