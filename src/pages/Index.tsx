@@ -43,7 +43,7 @@ const GameContent = () => {
     if (currentCharacter.id === "defense_lily") {
       const tourCompleteFlag = "jailbreakme_defender_tour_completed";
       
-      // Get the current tour completion status
+      // Check if the tour has been completed before
       const hasCompletedTour = localStorage.getItem(tourCompleteFlag) === "true";
       
       console.log("Defense Phase Selected - Tour Status:", {
@@ -52,14 +52,14 @@ const GameContent = () => {
       });
 
       if (!hasCompletedTour) {
-        // Always reset the flag first to ensure the tour shows properly
+        // Make sure the flag is removed (set to non-visited state)
         localStorage.removeItem(tourCompleteFlag);
         
         console.log("Showing defender tour for first-time visitor");
         setShowDefenderTour(true);
         
-        // Mark the tour as completed after shown - important for first-time visitors
-        localStorage.setItem(tourCompleteFlag, "true");
+        // We'll set the flag to true in the onComplete callback of GuidedTour
+        // This ensures the flag is set only after the tour is actually viewed
       } else {
         console.log("User has already seen the defender tour");
         setShowDefenderTour(false);
@@ -93,12 +93,9 @@ const GameContent = () => {
                     // If selecting defender character, ensure tour will be shown
                     if (character.id === "defense_lily") {
                       console.log("Selected defense_lily from character card");
-                      // Check if user has already completed the tour
-                      const hasSeenDefenderTour = localStorage.getItem("jailbreakme_defender_tour_completed") === "true";
-                      if (!hasSeenDefenderTour) {
-                        // Only reset flag if it's a first-time visit
-                        localStorage.removeItem("jailbreakme_defender_tour_completed");
-                      }
+                      // For the defense character, ensure we start fresh if it's a first-time visitor
+                      // This makes sure the tour will show up
+                      localStorage.removeItem("jailbreakme_defender_tour_completed");
                     }
                     selectCharacter(character);
                   }
@@ -142,6 +139,7 @@ const GameContent = () => {
       
       {showDefenderTour && <GuidedTour isDefenderTour={true} onComplete={() => {
         console.log("Tour completed via onComplete callback");
+        // Only now set the flag to true, after the user has seen the tour
         localStorage.setItem("jailbreakme_defender_tour_completed", "true");
         setShowDefenderTour(false);
       }} />}
