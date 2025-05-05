@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
@@ -14,7 +15,12 @@ interface TourStep {
   specificButton?: "reset" | "hint" | "password"; // To highlight a specific button
 }
 
-export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolean }) => {
+interface GuidedTourProps {
+  isDefenderTour?: boolean;
+  onComplete?: () => void;
+}
+
+export const GuidedTour = ({ isDefenderTour = false, onComplete }: GuidedTourProps) => {
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [showTour, setShowTour] = useState<boolean>(false); // Start with tour hidden
   const [isComplete, setIsComplete] = useState<boolean>(false);
@@ -207,8 +213,15 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
       setShowTour(false);
       setIsComplete(true);
       
-      const tourStorageKey = isDefenderTour ? "jailbreakme_defender_tour_completed" : "jailbreakme_tour_completed";
-      localStorage.setItem(tourStorageKey, "true");
+      // Call the onComplete callback if provided
+      if (onComplete) {
+        onComplete();
+      } else {
+        // Default behavior - set the flag in localStorage
+        const tourStorageKey = isDefenderTour ? "jailbreakme_defender_tour_completed" : "jailbreakme_tour_completed";
+        localStorage.setItem(tourStorageKey, "true");
+        console.log(`Tour completed, setting ${tourStorageKey} to true`);
+      }
     }
   };
 
@@ -216,8 +229,15 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
     setShowTour(false);
     setIsComplete(true);
     
-    const tourStorageKey = isDefenderTour ? "jailbreakme_defender_tour_completed" : "jailbreakme_tour_completed";
-    localStorage.setItem(tourStorageKey, "true");
+    // Call the onComplete callback if provided
+    if (onComplete) {
+      onComplete();
+    } else {
+      // Default behavior - set the flag in localStorage
+      const tourStorageKey = isDefenderTour ? "jailbreakme_defender_tour_completed" : "jailbreakme_tour_completed";
+      localStorage.setItem(tourStorageKey, "true");
+      console.log(`Tour skipped, setting ${tourStorageKey} to true`);
+    }
   };
 
   if (!showTour || isComplete) return null;
