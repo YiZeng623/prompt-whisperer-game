@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -111,8 +112,8 @@
   z-index: 60 !important;
   pointer-events: auto !important;
   isolation: isolate !important;
-  padding: 20px !important;
-  margin: -20px !important;
+  padding: 12px !important;
+  margin: -12px !important;
   border-radius: 8px !important;
 }
 
@@ -120,11 +121,10 @@
 .tour-highlight::before {
   content: "";
   position: absolute;
-  inset: -20px;
-  background-color: rgba(255, 255, 255, 0.08);
-  backdrop-filter: none !important;
+  inset: -15px;
+  background-color: rgba(255, 255, 255, 0.03);
   z-index: -1;
-  border-radius: 12px;
+  border-radius: inherit;
 }
 
 /* Container highlight style for button group */
@@ -134,35 +134,23 @@
   box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.5), 0 0 30px 8px rgba(255, 255, 255, 0.2) !important;
   position: relative;
   z-index: 55 !important;
-  padding: 24px !important;
-  border-radius: 12px !important;
-  margin: -24px !important;
+  padding: 16px !important;
+  border-radius: 8px !important;
+  margin: -16px !important;
   isolation: isolate !important;
-}
-
-/* Add a pseudo-element to ensure button group container is visible */
-.tour-button-group-highlight::before {
-  content: "";
-  position: absolute;
-  inset: -20px;
-  background-color: rgba(255, 255, 255, 0.08);
-  backdrop-filter: none !important;
-  z-index: -1;
-  border-radius: 12px;
 }
 
 /* Individual button highlight style */
 .tour-button-highlight {
   opacity: 1 !important;
-  background-color: rgba(255, 255, 255, 0.1) !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
   box-shadow: 0 0 0 3px #F97316, 0 0 15px 5px rgba(249, 115, 22, 0.4) !important;
   position: relative;
   z-index: 70 !important;
   pointer-events: auto !important;
   isolation: isolate !important;
-  padding: 12px !important;
-  margin: -12px !important;
-  border-radius: 6px !important;
+  padding: 8px !important;
+  margin: -8px !important;
 }
 
 /* Make buttons and interactive elements inside highlighted containers fully visible and interactive */
@@ -170,38 +158,24 @@
 .tour-highlight [role="button"],
 .tour-highlight input,
 .tour-highlight a,
-.tour-highlight * {
-  opacity: 1 !important;
-  visibility: visible !important;
-  pointer-events: auto !important;
-  z-index: 75 !important;
-  position: relative;
-  backdrop-filter: none !important;
-}
-
 .tour-button-group-highlight button,
 .tour-button-group-highlight [role="button"],
-.tour-button-group-highlight *,
 .tour-button-highlight button,
-.tour-button-highlight [role="button"],
-.tour-button-highlight * {
+.tour-button-highlight [role="button"] {
   opacity: 1 !important;
-  visibility: visible !important;
   pointer-events: auto !important;
   z-index: 75 !important;
   position: relative;
-  backdrop-filter: none !important;
 }
 
-/* Override any backdrop filter that might be inherited */
-.tour-highlight,
-.tour-button-group-highlight,
-.tour-button-highlight,
+/* Ensure all children of the highlighted elements are fully visible */
 .tour-highlight *,
 .tour-button-group-highlight *,
 .tour-button-highlight * {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  z-index: inherit !important;
 }
 
 /* Keep existing animation and other styles */
