@@ -59,8 +59,10 @@ const GameContent = () => {
         // User hasn't seen the tour yet, show it regardless of how they got here
         console.log("Showing defender tour for first-time visitor");
         setShowDefenderTour(true);
-        // Mark that they've now seen the tour
-        localStorage.setItem(normalVisitFlag, "true");
+        // Mark that they've now seen the tour (after showing it)
+        setTimeout(() => {
+          localStorage.setItem(normalVisitFlag, "true");
+        }, 500);
       } else {
         console.log("User has already seen the defender tour");
         setShowDefenderTour(false);
