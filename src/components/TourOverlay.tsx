@@ -19,8 +19,7 @@ export const TourOverlay: React.FC<TourOverlayProps> = ({
       className="fixed inset-0 bg-black/30" 
       style={{ 
         pointerEvents: "auto",
-        zIndex: 40,
-        backdropFilter: "blur(1px)"
+        zIndex: 40
       }} 
       onClick={onClick}
       data-highlight-type={highlightType}
