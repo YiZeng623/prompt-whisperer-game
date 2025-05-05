@@ -110,7 +110,16 @@
   box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.8), 0 0 30px 8px rgba(255, 255, 255, 0.4) !important;
   pointer-events: auto !important;
   position: relative;
-  z-index: 95 !important; /* Ensure it's above the blur overlay but below the popover */
+  z-index: 97 !important; /* Increased z-index to ensure it's above the overlay */
+}
+
+/* Make the actual buttons more visible within their highlighted containers */
+.tour-highlight button,
+.tour-highlight [role="button"] {
+  opacity: 1 !important;
+  z-index: 98 !important;
+  position: relative !important;
+  pointer-events: auto !important;
 }
 
 @keyframes glowing {
@@ -215,4 +224,3 @@
     top: 100%;
   }
 }
-

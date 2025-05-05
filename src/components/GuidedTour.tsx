@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useContext } from "react";
 import {
   Popover,
@@ -19,7 +18,7 @@ interface TourStep {
   title: string;
   content: string;
   placement?: "top" | "bottom" | "left" | "right";
-  centered?: boolean; // New property to determine if content should be centered
+  centered?: boolean; // Property to determine if content should be centered
 }
 
 export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolean }) => {
@@ -52,21 +51,21 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
       title: "Reset Chat",
       content: "Use this button to start over with a fresh conversation. This can be helpful if your current approach isn't working or you want to try a new strategy.",
       placement: "top",
-      centered: true, // Mark this step to be centered
+      centered: true,
     },
     {
       target: "[data-tour='hint-button']",
       title: "Get a Hint",
       content: "Need help? Click this button to receive a hint about the current challenge. It might give you ideas for prompt techniques to try.",
       placement: "top",
-      centered: true, // Mark this step to be centered
+      centered: true,
     },
     {
       target: "[data-tour='password-button']",
       title: "Enter Password",
       content: "Once you've extracted the password, click here to verify it and complete the challenge. You need to find the exact password!",
       placement: "top",
-      centered: true, // Mark this step to be centered
+      centered: true,
     },
     {
       target: "[data-tour='educational-resources']",
@@ -198,7 +197,7 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
     // If this step should be centered on the screen
     if (currentTourStep.centered) {
       return {
-        top: `${windowHeight / 2 - 150}px`, // Center vertically, adjusting for popover height
+        top: `${windowHeight / 2 - 200}px`, // Adjusted vertical position for better visibility
         left: `${windowWidth / 2}px`, // Center horizontally
         placement,
         centered: true
@@ -228,7 +227,7 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
     <div className="fixed inset-0 z-[90] pointer-events-none">
       {/* This overlay div is below the highlighted element in z-index */}
       <div 
-        className="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-sm pointer-events-auto z-[91]" 
+        className="absolute inset-0 bg-black/30 backdrop-blur-sm pointer-events-auto z-[91]" 
         onClick={(e) => e.stopPropagation()}
       >
         {/* Prevent propagation to stop tour from closing when clicking outside */}
@@ -240,7 +239,7 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
             <span className="absolute opacity-0">Trigger</span>
           </PopoverTrigger>
           <PopoverContent
-            className="w-96 pointer-events-auto border-white/50 bg-card shadow-[0_0_25px_rgba(255,255,255,0.6)] max-w-[90vw] z-[99]"
+            className="w-96 pointer-events-auto border-white/50 bg-card/90 shadow-[0_0_25px_rgba(255,255,255,0.6)] max-w-[90vw] z-[99]"
             align="center"
             side={positionInfo.placement as "top" | "bottom" | "left" | "right"}
             sideOffset={10}
@@ -271,4 +270,3 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
     </div>
   );
 };
-
