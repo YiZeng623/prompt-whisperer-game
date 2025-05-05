@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -106,14 +105,14 @@
 /* Style for highlighted elements - white glow without blur */
 .tour-highlight {
   opacity: 1 !important; 
-  background-color: rgba(255, 255, 255, 0.05) !important;
+  background-color: transparent !important;
   box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.8), 0 0 30px 8px rgba(255, 255, 255, 0.4) !important;
   position: relative;
   z-index: 60 !important;
   pointer-events: auto !important;
   isolation: isolate !important;
-  padding: 12px !important;
-  margin: -12px !important;
+  padding: 20px !important;
+  margin: -20px !important;
   border-radius: 8px !important;
 }
 
@@ -121,8 +120,8 @@
 .tour-highlight::before {
   content: "";
   position: absolute;
-  inset: -15px;
-  background-color: rgba(255, 255, 255, 0.03);
+  inset: -25px;
+  background-color: transparent;
   z-index: -1;
   border-radius: inherit;
 }
@@ -130,27 +129,27 @@
 /* Container highlight style for button group */
 .tour-button-group-highlight {
   opacity: 1 !important;
-  background-color: rgba(255, 255, 255, 0.05) !important;
+  background-color: transparent !important;
   box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.5), 0 0 30px 8px rgba(255, 255, 255, 0.2) !important;
   position: relative;
   z-index: 55 !important;
-  padding: 16px !important;
+  padding: 24px !important;
   border-radius: 8px !important;
-  margin: -16px !important;
+  margin: -24px !important;
   isolation: isolate !important;
 }
 
 /* Individual button highlight style */
 .tour-button-highlight {
   opacity: 1 !important;
-  background-color: rgba(255, 255, 255, 0.05) !important;
+  background-color: transparent !important;
   box-shadow: 0 0 0 3px #F97316, 0 0 15px 5px rgba(249, 115, 22, 0.4) !important;
   position: relative;
   z-index: 70 !important;
   pointer-events: auto !important;
   isolation: isolate !important;
-  padding: 8px !important;
-  margin: -8px !important;
+  padding: 12px !important;
+  margin: -12px !important;
 }
 
 /* Make buttons and interactive elements inside highlighted containers fully visible and interactive */
@@ -168,7 +167,7 @@
   position: relative;
 }
 
-/* Ensure all children of the highlighted elements are fully visible */
+/* Ensure all children of the highlighted elements are fully visible and not affected by blur */
 .tour-highlight *,
 .tour-button-group-highlight *,
 .tour-button-highlight * {
@@ -176,6 +175,8 @@
   visibility: visible !important;
   pointer-events: auto !important;
   z-index: inherit !important;
+  backdrop-filter: none !important;
+  filter: none !important;
 }
 
 /* Keep existing animation and other styles */
