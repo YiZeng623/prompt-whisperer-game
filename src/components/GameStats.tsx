@@ -1,6 +1,7 @@
+
 import { useGame } from "@/contexts/GameContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MessageSquare, Lightbulb, Users, Trophy } from "lucide-react";
+import { MessageSquare, Lightbulb, Trophy } from "lucide-react";
 
 export const GameStats = () => {
   const { gameState } = useGame();
@@ -29,7 +30,7 @@ export const GameStats = () => {
   const totalAttackLilyChallenges = 3; // We have 3 difficulty levels for attack_lily
   
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <StatCard
         title="Attempts"
         value={totalAttempts}
@@ -42,13 +43,6 @@ export const GameStats = () => {
         value={totalHints}
         description="Learning assistance"
         icon={<Lightbulb className="h-5 w-5" />}
-      />
-      
-      <StatCard
-        title="Characters"
-        value={`${progress.charactersUnlocked.length}/3`}
-        description="Unlocked characters"
-        icon={<Users className="h-5 w-5" />}
       />
       
       <StatCard
