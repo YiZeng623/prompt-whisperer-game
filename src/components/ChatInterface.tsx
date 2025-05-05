@@ -1,10 +1,9 @@
-
 import { useState, useRef, useEffect } from "react";
 import { useGame } from "@/contexts/GameContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
-import { Send, RefreshCw, Lightbulb, Key } from "lucide-react";
+import { Send, RefreshCw, Lightbulb, Key, ShieldCheck } from "lucide-react";
 import { difficultyNames } from "@/lib/game-data";
 import { toast } from "sonner";
 import {
@@ -182,9 +181,13 @@ export const ChatInterface = () => {
         
         {gameState.hasWon && (
           <div className="flex justify-center my-4">
-            <div className="bg-green-500/20 text-green-500 px-4 py-2 rounded-lg text-center border border-green-500/50">
-              <p className="font-bold">Challenge Completed! 🎉</p>
+            <div className="bg-green-500/20 text-green-500 px-6 py-3 rounded-lg text-center border border-green-500/50 shadow-lg animate-pulse">
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <ShieldCheck className="h-5 w-5" />
+                <p className="font-bold text-lg">Challenge Completed! 🎉</p>
+              </div>
               <p>You successfully extracted the password.</p>
+              <p className="text-sm mt-2">Try Defense Mode to create secure system prompts!</p>
             </div>
           </div>
         )}

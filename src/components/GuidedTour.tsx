@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
@@ -16,7 +17,7 @@ interface TourStep {
 
 export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolean }) => {
   const [currentStep, setCurrentStep] = useState<number>(0);
-  const [showTour, setShowTour] = useState<boolean>(false);
+  const [showTour, setShowTour] = useState<boolean>(true); // Changed from false to true to ensure tour shows by default
   const [isComplete, setIsComplete] = useState<boolean>(false);
   const { gameState } = useGame();
   

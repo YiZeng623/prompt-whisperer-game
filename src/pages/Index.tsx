@@ -13,6 +13,7 @@ import { PredefinedAttacks } from "@/components/PredefinedAttacks";
 import { characters, getCharacterById } from "@/lib/game-data";
 import { useEffect, useState } from "react";
 import { GuidedTour } from "@/components/GuidedTour";
+import { SuccessGuide } from "@/components/SuccessGuide";
 
 const GameContent = () => {
   const { gameState, selectCharacter } = useGame();
@@ -103,6 +104,7 @@ const GameContent = () => {
       </div>
       
       {showDefenderTour && <GuidedTour isDefenderTour={true} />}
+      <SuccessGuide />
     </div>
   );
 };
