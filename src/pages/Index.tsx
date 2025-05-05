@@ -31,7 +31,7 @@ const GameContent = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <GameStats />
+      {!isDefenderPhase && <GameStats />}
       
       <div className="mt-8">
         <h2 className="text-xl font-bold mb-4">Current Phase</h2>

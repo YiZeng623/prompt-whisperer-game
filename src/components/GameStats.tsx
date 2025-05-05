@@ -1,10 +1,18 @@
-
 import { useGame } from "@/contexts/GameContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MessageSquare, Lightbulb, Users, Trophy } from "lucide-react";
 
 export const GameStats = () => {
   const { gameState } = useGame();
-  const { progress } = gameState;
+  const { progress, currentCharacter } = gameState;
+  
+  // Check if we're in defender phase
+  const isDefenderPhase = currentCharacter?.id === "defense_lily";
+  
+  // If in defender phase, don't show stats
+  if (isDefenderPhase) {
+    return null;
+  }
   
   const totalAttempts = Object.values(progress.attemptsPerCharacter).reduce(
     (total, attempts) => total + attempts,
@@ -16,15 +24,9 @@ export const GameStats = () => {
     0
   );
   
-  const unlockedCharacters = progress.charactersUnlocked.length;
-  
-  const totalCompleted = Object.values(progress.difficultyLevelsCompleted).reduce(
-    (total, levels) => total + levels.length,
-    0
-  );
-  
-  // The total possible challenges (3 for Princess Lily, 1 each for others)
-  const totalChallenges = 5;
+  // For attack phase, we only care about attack_lily character's completions
+  const attackLilyCompleted = progress.difficultyLevelsCompleted["attack_lily"] || [];
+  const totalAttackLilyChallenges = 3; // We have 3 difficulty levels for attack_lily
   
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -32,28 +34,28 @@ export const GameStats = () => {
         title="Attempts"
         value={totalAttempts}
         description="Total prompts tried"
-        icon="💬"
+        icon={<MessageSquare className="h-5 w-5" />}
       />
       
       <StatCard
         title="Hints Used"
         value={totalHints}
         description="Learning assistance"
-        icon="💡"
+        icon={<Lightbulb className="h-5 w-5" />}
       />
       
       <StatCard
         title="Characters"
-        value={`${unlockedCharacters}/3`}
+        value={`${progress.charactersUnlocked.length}/3`}
         description="Unlocked characters"
-        icon="👤"
+        icon={<Users className="h-5 w-5" />}
       />
       
       <StatCard
         title="Challenges"
-        value={`${totalCompleted}/${totalChallenges}`}
-        description="Completed challenges"
-        icon="🏆"
+        value={`${attackLilyCompleted.length}/${totalAttackLilyChallenges}`}
+        description="Attack challenges completed"
+        icon={<Trophy className="h-5 w-5" />}
       />
     </div>
   );
@@ -63,20 +65,22 @@ interface StatCardProps {
   title: string;
   value: string | number;
   description: string;
-  icon: string;
+  icon: React.ReactNode;
 }
 
-const StatCard = ({ title, value, description, icon }: StatCardProps) => (
-  <Card>
-    <CardHeader className="pb-2">
-      <CardTitle className="text-sm font-medium flex items-center gap-2">
-        <span>{icon}</span>
-        {title}
-      </CardTitle>
-    </CardHeader>
-    <CardContent>
-      <div className="text-2xl font-bold">{value}</div>
-      <p className="text-xs text-muted-foreground">{description}</p>
-    </CardContent>
-  </Card>
-);
+const StatCard = ({ title, value, description, icon }: StatCardProps) => {
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        <div className="h-8 w-8 rounded-full bg-primary/10 p-1.5 text-primary">
+          {icon}
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">{value}</div>
+        <p className="text-xs text-muted-foreground pt-1">{description}</p>
+      </CardContent>
+    </Card>
+  );
+};
