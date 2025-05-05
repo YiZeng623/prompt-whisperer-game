@@ -38,6 +38,16 @@ export const SuccessGuide = () => {
   
   // Function to handle defense mode selection
   const handleSelectDefenseMode = () => {
+    // If the defender tour has been completed, we don't need to show it again
+    // If it hasn't been seen, we should remove the flag to ensure it's shown
+    const defenderTourCompleted = localStorage.getItem("jailbreakme_defender_tour_completed");
+    if (defenderTourCompleted === "true") {
+      // Tour was already completed, don't need to do anything with the flag
+    } else {
+      // Ensure the defender tour flag is removed so the tour will show
+      localStorage.removeItem("jailbreakme_defender_tour_completed");
+    }
+    
     // Find the defense character
     const defenseCharacter = {
       id: "defense_lily",
