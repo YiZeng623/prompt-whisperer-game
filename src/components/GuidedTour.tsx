@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import {
   Popover,
@@ -7,13 +8,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { useGame } from "@/contexts/GameContext";
+import { TourOverlay } from "./TourOverlay";
 
 interface TourStep {
   target: string;
   title: string;
   content: string;
   placement?: "top" | "bottom" | "left" | "right";
-  centered?: boolean; // Property to determine if content should be centered
+  centered?: boolean;
 }
 
 export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolean }) => {
@@ -218,9 +220,9 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
   const positionInfo = getAppropriatePosition();
 
   return (
-    <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 99 }}>
-      {/* Semi-transparent overlay */}
-      <div className="tour-overlay" onClick={(e) => e.stopPropagation()} />
+    <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 90 }}>
+      {/* Use our extracted TourOverlay component */}
+      <TourOverlay isActive={true} onClick={(e) => e.stopPropagation()} />
 
       {currentTourStep && (
         <Popover open={true}>
@@ -237,7 +239,7 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
               top: positionInfo.top,
               left: positionInfo.left,
               transform: positionInfo.centered ? 'translate(-50%, 0)' : 'translateX(-50%)',
-              zIndex: 110, // Ensure the popover is above everything else
+              zIndex: 100, // Higher than overlay but below highlighted elements' children
             }}
           >
             <div className="space-y-3">
