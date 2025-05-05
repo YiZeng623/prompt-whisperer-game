@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -103,7 +102,7 @@
   z-index: 45;
 }
 
-/* Style for highlighted elements - white glow with shadow effect - INCREASED MARGIN */
+/* Style for highlighted elements - white glow with shadow effect - preserving content size */
 .tour-highlight {
   opacity: 1 !important; 
   background: transparent !important;
@@ -111,8 +110,9 @@
   position: relative;
   z-index: 60 !important;
   pointer-events: auto !important;
-  /* Increased margin from all sides */
-  margin: 16px !important;
+  /* Use outline instead of margin to avoid content resizing */
+  outline: 16px solid transparent !important;
+  /* Keep padding to maintain visual spacing without shrinking content */
   padding: 12px !important;
   border-radius: 10px !important;
 }
