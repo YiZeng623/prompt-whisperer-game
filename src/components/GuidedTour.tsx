@@ -290,7 +290,7 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
       <TourOverlay 
         isActive={true} 
         onClick={(e) => e.stopPropagation()} 
-        highlightType={currentTourStep.highlightType}
+        highlightType={currentTourStep?.highlightType}
       />
 
       {/* Popover content */}
@@ -306,8 +306,8 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
         }}
       >
         <div className="space-y-4">
-          <h3 className="font-medium text-xl text-center">{currentTourStep.title}</h3>
-          <p className="text-base text-center">{currentTourStep.content}</p>
+          <h3 className="font-medium text-xl text-center">{currentTourStep?.title}</h3>
+          <p className="text-base text-center">{currentTourStep?.content}</p>
           <div className="flex justify-between pt-3">
             <Button variant="outline" onClick={handleSkipTour}>
               Skip tour

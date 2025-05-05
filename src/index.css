@@ -110,7 +110,7 @@
   opacity: 1 !important;
   backdrop-filter: none !important;
   background: transparent !important;
-  box-shadow: 0 0 0 4px hsl(var(--primary)), 0 0 30px 8px rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.8), 0 0 30px 8px rgba(255, 255, 255, 0.4) !important;
   position: relative;
   z-index: 60 !important;
   pointer-events: auto !important;
@@ -136,8 +136,9 @@
   background: transparent !important;
   box-shadow: 0 0 0 3px #F97316, 0 0 15px 5px rgba(249, 115, 22, 0.4) !important;
   position: relative;
-  z-index: 70 !important; /* Increased z-index from 65 to 70 */
+  z-index: 70 !important;
   pointer-events: auto !important;
+  isolation: isolate !important;
 }
 
 /* Make buttons and interactive elements inside highlighted containers fully visible and interactive */
@@ -151,7 +152,7 @@
 .tour-button-highlight [role="button"] {
   opacity: 1 !important;
   pointer-events: auto !important;
-  z-index: 75 !important; /* Increased z-index from 65 to 75 */
+  z-index: 75 !important;
   position: relative;
   background-color: transparent !important;
 }
@@ -163,13 +164,13 @@
   background-color: transparent !important;
   backdrop-filter: none !important;
   box-shadow: none !important;
-  z-index: 70 !important; /* Ensure these are above the overlay */
+  z-index: 70 !important;
 }
 
 /* Group container for the button tour steps */
 [data-tour="button-group"] {
   background-color: transparent !important;
-  z-index: 65 !important; /* Make sure the group container is above the overlay */
+  z-index: 65 !important;
 }
 
 /* Ensure all children of the highlighted elements are visible */
@@ -179,22 +180,23 @@
   opacity: 1 !important;
   visibility: visible !important;
   pointer-events: auto !important;
-  z-index: inherit !important; /* Inherit the parent's z-index */
+  z-index: inherit !important;
 }
 
 /* Animation styles */
 @keyframes glowing {
   0% {
-    box-shadow: 0 0 5px theme('colors.primary.DEFAULT'), 0 0 10px theme('colors.primary.DEFAULT');
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.8), 0 0 10px rgba(255, 255, 255, 0.8);
   }
   50% {
-    box-shadow: 0 0 20px theme('colors.primary.DEFAULT'), 0 0 30px theme('colors.primary.DEFAULT');
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.8);
   }
   100% {
-    box-shadow: 0 0 5px theme('colors.primary.DEFAULT'), 0 0 10px theme('colors.primary.DEFAULT');
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.8), 0 0 10px rgba(255, 255, 255, 0.8);
   }
 }
 
+/* Keep existing animation and other styles */
 @keyframes typing {
   from { width: 0 }
   to { width: 100% }
