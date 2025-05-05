@@ -44,30 +44,31 @@ const GameContent = () => {
       const normalVisitFlag = "jailbreakme_defender_tour_completed";
       const viaSuccessFlag = "jailbreakme_defender_via_success";
       
-      const isTourCompletedNormally = localStorage.getItem(normalVisitFlag) === "true";
-      const isTourCompletedViaSuccess = localStorage.getItem(viaSuccessFlag) === "true";
-      
       // Check if user came via success popup
       const cameViaSuccessPopup = localStorage.getItem(viaSuccessFlag) === "true";
       
       if (cameViaSuccessPopup) {
-        // If they came via success popup and haven't seen the tour via this route yet
-        if (!isTourCompletedViaSuccess) {
+        // Clear the via-success flag since we've processed it
+        localStorage.removeItem(viaSuccessFlag);
+        
+        // Check if they've seen the tour before via any method
+        const hasSeenTourBefore = localStorage.getItem(normalVisitFlag) === "true";
+        
+        if (!hasSeenTourBefore) {
+          // Show the tour if they haven't seen it before
           setShowDefenderTour(true);
-          // Mark that they've now seen the tour via success route
-          localStorage.setItem(viaSuccessFlag, "true");
-          // Also mark the normal route as completed to prevent double tours
+          // Mark that they've now seen the tour
           localStorage.setItem(normalVisitFlag, "true");
         } else {
           setShowDefenderTour(false);
         }
-        // Clear the via-success flag since we've processed it
-        localStorage.removeItem(viaSuccessFlag);
       } else {
-        // Regular navigation - only show if they haven't seen the tour via regular navigation
-        if (!isTourCompletedNormally) {
+        // Regular navigation - only show if they haven't seen the tour
+        const hasSeenTourBefore = localStorage.getItem(normalVisitFlag) === "true";
+        
+        if (!hasSeenTourBefore) {
           setShowDefenderTour(true);
-          // Mark that they've now seen the tour via normal route
+          // Mark that they've now seen the tour
           localStorage.setItem(normalVisitFlag, "true");
         } else {
           setShowDefenderTour(false);
