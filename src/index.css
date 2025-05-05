@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -129,15 +128,38 @@
   margin: -8px !important;
 }
 
-/* Individual button highlight style - increased z-index to show above overlay */
+/* Individual button highlight style */
 .tour-button-highlight {
+  position: relative !important;
   opacity: 1 !important;
+  visibility: visible !important;
   backdrop-filter: none !important;
   background: transparent !important;
   box-shadow: 0 0 0 3px #F97316, 0 0 15px 5px rgba(249, 115, 22, 0.4) !important;
-  position: relative;
-  z-index: 70 !important; /* Increased z-index from 65 to 70 */
+  z-index: 1000 !important; /* Extremely high z-index to ensure visibility */
   pointer-events: auto !important;
+  isolation: isolate !important; /* Create a new stacking context */
+}
+
+/* Special style for the button-specific tour steps */
+[data-tour="reset-button"].tour-highlight,
+[data-tour="hint-button"].tour-highlight,
+[data-tour="password-button"].tour-highlight {
+  opacity: 1 !important;
+  visibility: visible !important;
+  background-color: transparent !important;
+  backdrop-filter: none !important;
+  box-shadow: 0 0 0 3px #F97316, 0 0 15px 5px rgba(249, 115, 22, 0.4) !important;
+  z-index: 1000 !important; /* Extremely high z-index */
+  position: relative !important;
+  isolation: isolate !important; /* Create a new stacking context */
+}
+
+/* Group container for the button tour steps */
+[data-tour="button-group"] {
+  background-color: transparent !important;
+  z-index: 65 !important;
+  position: relative !important;
 }
 
 /* Make buttons and interactive elements inside highlighted containers fully visible and interactive */
@@ -150,26 +172,11 @@
 .tour-button-highlight button,
 .tour-button-highlight [role="button"] {
   opacity: 1 !important;
+  visibility: visible !important;
   pointer-events: auto !important;
-  z-index: 75 !important; /* Increased z-index from 65 to 75 */
-  position: relative;
+  position: relative !important;
+  z-index: inherit !important;
   background-color: transparent !important;
-}
-
-/* Special style for the button-specific tour steps */
-[data-tour="reset-button"].tour-highlight,
-[data-tour="hint-button"].tour-highlight,
-[data-tour="password-button"].tour-highlight {
-  background-color: transparent !important;
-  backdrop-filter: none !important;
-  box-shadow: none !important;
-  z-index: 70 !important; /* Ensure these are above the overlay */
-}
-
-/* Group container for the button tour steps */
-[data-tour="button-group"] {
-  background-color: transparent !important;
-  z-index: 65 !important; /* Make sure the group container is above the overlay */
 }
 
 /* Ensure all children of the highlighted elements are visible */
@@ -179,7 +186,7 @@
   opacity: 1 !important;
   visibility: visible !important;
   pointer-events: auto !important;
-  z-index: inherit !important; /* Inherit the parent's z-index */
+  z-index: inherit !important;
 }
 
 /* Animation styles */

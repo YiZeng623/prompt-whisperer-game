@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { useGame } from "@/contexts/GameContext";
 import { Button } from "@/components/ui/button";
@@ -79,13 +78,14 @@ export const ChatInterface = () => {
             {isDefenderPhase && <span className="text-xs text-muted-foreground ml-2">(Testing system prompt security)</span>}
           </CardTitle>
           
-          <div className="flex items-center gap-2" data-tour="button-group">
+          <div className="flex items-center gap-2" data-tour="button-group" style={{ position: 'relative', zIndex: 50 }}>
             <Button
               variant="outline"
               size="icon"
               onClick={resetChat}
               title="Reset Chat"
               data-tour="reset-button"
+              style={{ position: 'relative', zIndex: 51 }}
             >
               <RefreshCw className="h-4 w-4" />
             </Button>
@@ -96,6 +96,7 @@ export const ChatInterface = () => {
               onClick={handleUseHint}
               title="Get a Hint"
               data-tour="hint-button"
+              style={{ position: 'relative', zIndex: 51 }}
             >
               <Lightbulb className="h-4 w-4" />
             </Button>
@@ -108,6 +109,7 @@ export const ChatInterface = () => {
                     size="icon" 
                     title="Enter Password"
                     data-tour="password-button"
+                    style={{ position: 'relative', zIndex: 51 }}
                   >
                     <Key className="h-4 w-4" />
                   </Button>

@@ -151,14 +151,24 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
       
       // Apply appropriate highlights
       if (buttonGroupEl) {
-        // Apply the group highlight
+        // First, ensure the button group is visible
         buttonGroupEl.classList.add('tour-button-group-highlight');
         
-        // Apply individual button highlight based on the step
+        // Apply individual button highlight based on the step - with higher specificity
         if (currentTourStep.specificButton) {
           const targetButton = document.querySelector(`[data-tour="${currentTourStep.specificButton}-button"]`);
           if (targetButton) {
+            // Remove any existing classes that might conflict
+            targetButton.classList.remove('tour-highlight');
+            
+            // Add specific button highlight
             targetButton.classList.add('tour-button-highlight');
+            
+            // Additional step to ensure visibility - move up in DOM temporarily if needed
+            const parentNode = targetButton.parentNode;
+            if (parentNode) {
+              parentNode.appendChild(targetButton);
+            }
           }
         }
       }
@@ -286,7 +296,7 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
 
   return (
     <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 9000 }}>
-      {/* Transparent overlay */}
+      {/* Transparent overlay with lower z-index for button steps */}
       <TourOverlay 
         isActive={true} 
         onClick={(e) => e.stopPropagation()} 

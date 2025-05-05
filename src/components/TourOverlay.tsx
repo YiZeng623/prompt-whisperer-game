@@ -14,12 +14,15 @@ export const TourOverlay: React.FC<TourOverlayProps> = ({
 }) => {
   if (!isActive) return null;
   
+  // Lower z-index for button highlighting to ensure buttons appear above overlay
+  const zIndex = highlightType === "buttons" ? 30 : 40;
+  
   return (
     <div 
       className="fixed inset-0 bg-black/40" 
       style={{ 
         pointerEvents: "auto",
-        zIndex: 40,
+        zIndex: zIndex,
         backdropFilter: "none"
       }} 
       onClick={onClick}
