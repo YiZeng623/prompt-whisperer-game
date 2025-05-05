@@ -17,6 +17,21 @@ export const GameHeader = () => {
   const { resetGame } = useGame();
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
 
+  const handleReset = () => {
+    // Reset game state
+    resetGame();
+    
+    // Clear the tour completion status to show it again
+    localStorage.removeItem("jailbreakme_tour_completed");
+    localStorage.removeItem("jailbreakme_visited");
+    
+    // Close the dialog
+    setIsResetDialogOpen(false);
+    
+    // Reload the page to trigger the welcome modal
+    window.location.reload();
+  };
+
   return (
     <header className="container mx-auto p-4">
       <div className="flex items-center justify-between">
@@ -47,10 +62,7 @@ export const GameHeader = () => {
                 </Button>
                 <Button 
                   variant="destructive" 
-                  onClick={() => {
-                    resetGame();
-                    setIsResetDialogOpen(false);
-                  }}
+                  onClick={handleReset}
                 >
                   Reset
                 </Button>
