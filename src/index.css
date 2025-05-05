@@ -96,6 +96,23 @@
   }
 }
 
+/* Tour-related styles */
+.tour-active [data-tour] {
+  filter: blur(2px) opacity(0.3);
+  transition: all 0.3s ease-in-out;
+  pointer-events: none;
+}
+
+.tour-highlight {
+  filter: blur(0) opacity(1) !important;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.7), 0 0 20px 5px rgba(255, 255, 255, 0.3) !important;
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 60 !important;
+}
+
+/* ... keep existing code (animations like glowing, typing, etc.) */
+
 @keyframes glowing {
   0% {
     box-shadow: 0 0 5px theme('colors.primary.DEFAULT'), 0 0 10px theme('colors.primary.DEFAULT');

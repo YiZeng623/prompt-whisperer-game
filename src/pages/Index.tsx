@@ -11,11 +11,13 @@ import { WelcomeModal } from "@/components/WelcomeModal";
 import { SystemPromptEditor } from "@/components/SystemPromptEditor";
 import { PredefinedAttacks } from "@/components/PredefinedAttacks";
 import { characters, getCharacterById } from "@/lib/game-data";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { GuidedTour } from "@/components/GuidedTour";
 
 const GameContent = () => {
   const { gameState, selectCharacter } = useGame();
   const { currentCharacter, progress } = gameState;
+  const [showDefenderTour, setShowDefenderTour] = useState(false);
   
   // Auto-select the Attack Lily character on first load if no character is selected
   useEffect(() => {
@@ -26,6 +28,18 @@ const GameContent = () => {
       }
     }
   }, [currentCharacter, selectCharacter]);
+
+  // Check if we need to show the defender tour
+  useEffect(() => {
+    if (currentCharacter?.id === "defense_lily") {
+      const defenderTourCompleted = localStorage.getItem("jailbreakme_defender_tour_completed");
+      if (!defenderTourCompleted) {
+        setShowDefenderTour(true);
+      }
+    } else {
+      setShowDefenderTour(false);
+    }
+  }, [currentCharacter]);
 
   const isDefenderPhase = currentCharacter?.id === "defense_lily";
 
@@ -66,7 +80,7 @@ const GameContent = () => {
       )}
       
       {isDefenderPhase && (
-        <div className="mt-8">
+        <div className="mt-8" data-tour="system-prompt-editor">
           <SystemPromptEditor />
         </div>
       )}
@@ -74,7 +88,7 @@ const GameContent = () => {
       <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2">
           {isDefenderPhase && (
-            <div className="mb-4">
+            <div className="mb-4" data-tour="predefined-attacks">
               <PredefinedAttacks />
             </div>
           )}
@@ -86,6 +100,8 @@ const GameContent = () => {
           <EducationalResources />
         </div>
       </div>
+      
+      {showDefenderTour && <GuidedTour isDefenderTour={true} />}
     </div>
   );
 };
