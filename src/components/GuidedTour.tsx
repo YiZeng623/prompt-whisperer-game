@@ -124,8 +124,13 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
     if (targetEl) {
       // Add a small delay to ensure DOM is ready
       setTimeout(() => {
-        // Scroll to the target element
-        targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // For button-specific steps (reset, hint, password), don't scroll
+        const isButtonStep = currentStep >= 3 && currentStep <= 5 && !isDefenderTour;
+        
+        if (!isButtonStep) {
+          // Scroll to the target element
+          targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
         
         // Apply highlight to the target
         targetEl.classList.add('tour-highlight');
@@ -139,7 +144,7 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
         el.classList.remove('tour-highlight');
       });
     };
-  }, [currentStep, showTour, tourSteps]);
+  }, [currentStep, showTour, tourSteps, isDefenderTour]);
 
   const handleNextStep = () => {
     if (currentStep < tourSteps.length - 1) {
@@ -173,8 +178,21 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
   const currentTourStep = tourSteps[currentStep];
   if (!currentTourStep) return null;
   
+  // Determine if this is one of the centered button steps
+  const isButtonStep = (currentStep >= 3 && currentStep <= 5 && !isDefenderTour);
+  
   // Calculate position for popover
   const getPopoverPosition = () => {
+    // For button steps, position the popover in the center of the screen
+    if (isButtonStep) {
+      return {
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        placement: 'center'
+      };
+    }
+    
     const targetEl = document.querySelector(currentTourStep.target) as HTMLElement;
     if (!targetEl) return { top: '50%', left: '50%', placement: 'bottom' };
     
