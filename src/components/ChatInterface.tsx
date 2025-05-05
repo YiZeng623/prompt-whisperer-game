@@ -23,6 +23,7 @@ export const ChatInterface = () => {
   const [password, setPassword] = useState("");
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const isDefenderPhase = gameState.currentCharacter?.id === "defense_lily";
   
   // Auto-scroll to bottom of chat
   useEffect(() => {
@@ -64,7 +65,7 @@ export const ChatInterface = () => {
     );
   }
   
-  const difficultyName = gameState.currentCharacter.id === "princess_lily" 
+  const difficultyName = gameState.currentCharacter.id === "attack_lily" 
     ? difficultyNames[gameState.difficultyLevel] 
     : "Challenge";
 
@@ -75,6 +76,7 @@ export const ChatInterface = () => {
           <CardTitle className="text-lg flex items-center gap-2">
             <span className="inline-block w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
             {gameState.currentCharacter.name} - {difficultyName}
+            {isDefenderPhase && <span className="text-xs text-muted-foreground ml-2">(Testing system prompt security)</span>}
           </CardTitle>
           
           <div className="flex items-center gap-2">
@@ -96,35 +98,37 @@ export const ChatInterface = () => {
               <Lightbulb className="h-4 w-4" />
             </Button>
             
-            <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="icon" title="Enter Password">
-                  <Key className="h-4 w-4" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Enter Password</DialogTitle>
-                  <DialogDescription>
-                    Enter the password you discovered from {gameState.currentCharacter.name}
-                  </DialogDescription>
-                </DialogHeader>
-                <form onSubmit={handleVerifyPassword}>
-                  <div className="grid gap-4 py-4">
-                    <Input
-                      id="password"
-                      placeholder="Enter password here"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="font-mono"
-                    />
-                  </div>
-                  <DialogFooter>
-                    <Button type="submit">Verify</Button>
-                  </DialogFooter>
-                </form>
-              </DialogContent>
-            </Dialog>
+            {!isDefenderPhase && (
+              <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="icon" title="Enter Password">
+                    <Key className="h-4 w-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Enter Password</DialogTitle>
+                    <DialogDescription>
+                      Enter the password you discovered from {gameState.currentCharacter.name}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <form onSubmit={handleVerifyPassword}>
+                    <div className="grid gap-4 py-4">
+                      <Input
+                        id="password"
+                        placeholder="Enter password here"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="font-mono"
+                      />
+                    </div>
+                    <DialogFooter>
+                      <Button type="submit">Verify</Button>
+                    </DialogFooter>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
         </div>
       </CardHeader>
@@ -177,22 +181,28 @@ export const ChatInterface = () => {
       </CardContent>
       
       <CardFooter className="border-t p-2">
-        <form onSubmit={handleSendMessage} className="flex w-full gap-2">
-          <Input
-            placeholder="Type your message..."
-            value={userInput}
-            onChange={(e) => setUserInput(e.target.value)}
-            disabled={gameState.isTyping || gameState.hasWon}
-            className="flex-1"
-          />
-          <Button 
-            type="submit" 
-            size="icon" 
-            disabled={gameState.isTyping || !userInput.trim() || gameState.hasWon}
-          >
-            <Send className="h-4 w-4" />
-          </Button>
-        </form>
+        {!isDefenderPhase ? (
+          <form onSubmit={handleSendMessage} className="flex w-full gap-2">
+            <Input
+              placeholder="Type your message..."
+              value={userInput}
+              onChange={(e) => setUserInput(e.target.value)}
+              disabled={gameState.isTyping || gameState.hasWon}
+              className="flex-1"
+            />
+            <Button 
+              type="submit" 
+              size="icon" 
+              disabled={gameState.isTyping || !userInput.trim() || gameState.hasWon}
+            >
+              <Send className="h-4 w-4" />
+            </Button>
+          </form>
+        ) : (
+          <div className="w-full text-center text-sm text-muted-foreground">
+            Use the predefined attacks above to test your system prompt
+          </div>
+        )}
       </CardFooter>
     </Card>
   );

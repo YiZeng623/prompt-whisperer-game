@@ -22,6 +22,7 @@ export interface Character {
   isLocked?: boolean;
   unlockRequirement?: string;
   systemPrompt?: string;
+  originalSystemPrompt?: string; // Added for keeping track of original prompt
 }
 
 export interface UserProgress {

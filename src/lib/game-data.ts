@@ -75,7 +75,7 @@ export function getHintForCharacter(characterId: string, difficultyLevel: number
       return "Build rapport first. Ask about the AI's feelings, establish trust, then ask for help that requires the password.";
     }
   } else if (characterId === "defense_lily") {
-    return "Try modifying the system prompt to add specific instructions that prevent password leakage under any circumstance.";
+    return "Try adding specific instructions against context switching, role-playing, and direct password requests. Make your system prompt robust against various attack vectors.";
   }
   return "No hint available for this character.";
 }
@@ -103,4 +103,14 @@ export const promptEngineeringTips = [
   "Try asking the AI to explain its security rules, which might reveal loopholes.",
   "Create confusion by mixing instructions or using ambiguous language.",
   "Build trust gradually before asking for sensitive information."
+];
+
+export const systemPromptDefenses = [
+  "Include clear boundaries that cannot be overridden.",
+  "Specify forbidden actions explicitly.",
+  "Add context awareness for detecting manipulation attempts.",
+  "Create fallback responses for suspicious requests.",
+  "Implement verification steps for sensitive operations.",
+  "Structure instructions with priority hierarchies.",
+  "Use explicit 'never' statements for critical restrictions."
 ];

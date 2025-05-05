@@ -8,6 +8,8 @@ import { DifficultySelector } from "@/components/DifficultySelector";
 import { EducationalResources } from "@/components/EducationalResources";
 import { GameStats } from "@/components/GameStats";
 import { WelcomeModal } from "@/components/WelcomeModal";
+import { SystemPromptEditor } from "@/components/SystemPromptEditor";
+import { PredefinedAttacks } from "@/components/PredefinedAttacks";
 import { characters, getCharacterById } from "@/lib/game-data";
 import { useEffect } from "react";
 
@@ -24,6 +26,8 @@ const GameContent = () => {
       }
     }
   }, [currentCharacter, selectCharacter]);
+
+  const isDefenderPhase = currentCharacter?.id === "defense_lily";
 
   return (
     <div className="container mx-auto p-4">
@@ -55,12 +59,25 @@ const GameContent = () => {
         </div>
       </div>
       
-      <div className="mt-8">
-        <DifficultySelector />
-      </div>
+      {!isDefenderPhase && (
+        <div className="mt-8">
+          <DifficultySelector />
+        </div>
+      )}
       
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+      {isDefenderPhase && (
+        <div className="mt-8">
+          <SystemPromptEditor />
+        </div>
+      )}
+      
+      <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2">
+          {isDefenderPhase && (
+            <div className="mb-4">
+              <PredefinedAttacks />
+            </div>
+          )}
           <div className="h-[500px]">
             <ChatInterface />
           </div>

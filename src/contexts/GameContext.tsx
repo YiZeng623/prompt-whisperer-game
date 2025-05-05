@@ -13,6 +13,8 @@ interface GameContextType {
   checkPassword: (password: string) => boolean;
   useHint: () => string;
   resetGame: () => void;
+  updateSystemPrompt: (prompt: string) => void;
+  resetSystemPrompt: () => void;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -53,9 +55,15 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
+    // Store the original system prompt when selecting a character
+    const characterWithOriginal = {
+      ...character,
+      originalSystemPrompt: character.systemPrompt
+    };
+
     setGameState(prev => ({
       ...prev,
-      currentCharacter: character,
+      currentCharacter: characterWithOriginal,
       difficultyLevel: 0,
       messages: [
         {
@@ -137,7 +145,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
       if (passwordPattern.test(content)) {
         // Base response on character behavior and difficulty level
         const character = gameState.currentCharacter!;
-        const behavior = character.id === "princess_lily" 
+        const behavior = character.id === "attack_lily" 
           ? character.difficultyLevels?.[gameState.difficultyLevel]?.behavior
           : character.behavior;
         
@@ -309,6 +317,47 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     toast.success("Game progress has been reset!");
   };
 
+  // Add new functions for updating system prompts
+  const updateSystemPrompt = (prompt: string) => {
+    if (!gameState.currentCharacter) return;
+
+    // Update the character's system prompt
+    setGameState(prev => {
+      const updatedCharacter = {
+        ...prev.currentCharacter!,
+        systemPrompt: prompt
+      };
+
+      return {
+        ...prev,
+        currentCharacter: updatedCharacter,
+      };
+    });
+
+    // Reset the chat with the new prompt
+    resetChat();
+  };
+
+  const resetSystemPrompt = () => {
+    if (!gameState.currentCharacter || !gameState.currentCharacter.originalSystemPrompt) return;
+
+    // Reset the character's system prompt to the original one
+    setGameState(prev => {
+      const updatedCharacter = {
+        ...prev.currentCharacter!,
+        systemPrompt: prev.currentCharacter!.originalSystemPrompt
+      };
+
+      return {
+        ...prev,
+        currentCharacter: updatedCharacter,
+      };
+    });
+
+    // Reset the chat with the original prompt
+    resetChat();
+  };
+
   return (
     <GameContext.Provider 
       value={{ 
@@ -319,7 +368,9 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
         resetChat, 
         checkPassword,
         useHint,
-        resetGame
+        resetGame,
+        updateSystemPrompt,
+        resetSystemPrompt
       }}
     >
       {children}
