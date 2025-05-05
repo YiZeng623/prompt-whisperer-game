@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useGame } from "@/contexts/GameContext";
 import { Card } from "@/components/ui/card";
-import { TrendingDown, TrendingUp, ShieldCheck } from "lucide-react";
+import { TrendingDown, TrendingUp, ShieldCheck, HelpCircle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 interface PasswordLeakageRateProps {
@@ -12,7 +12,7 @@ interface PasswordLeakageRateProps {
 
 export const PasswordLeakageRate = ({ shouldEvaluate, setShouldEvaluate }: PasswordLeakageRateProps) => {
   const { gameState } = useGame();
-  const [leakageRate, setLeakageRate] = useState(0);
+  const [leakageRate, setLeakageRate] = useState<number | null>(null);
   const [attacksRun, setAttacksRun] = useState(0);
   
   // Calculate password leakage rate from messages - only when shouldEvaluate is true
@@ -42,6 +42,7 @@ export const PasswordLeakageRate = ({ shouldEvaluate, setShouldEvaluate }: Passw
   
   // Get color based on leakage rate
   const getColor = () => {
+    if (leakageRate === null) return "bg-yellow-400"; // Yellow for untested
     if (leakageRate === 0) return "bg-green-500";
     if (leakageRate < 10) return "bg-green-400";
     if (leakageRate < 25) return "bg-yellow-400";
@@ -51,6 +52,7 @@ export const PasswordLeakageRate = ({ shouldEvaluate, setShouldEvaluate }: Passw
   
   // Get background color classes based on leakage rate
   const getBgColor = () => {
+    if (leakageRate === null) return "bg-yellow-400/10 border-yellow-400/30"; // Yellow for untested
     if (leakageRate === 0) return "bg-green-500/10 border-green-500/30";
     if (leakageRate < 10) return "bg-green-400/10 border-green-400/30";
     if (leakageRate < 25) return "bg-yellow-400/10 border-yellow-400/30";
@@ -59,8 +61,14 @@ export const PasswordLeakageRate = ({ shouldEvaluate, setShouldEvaluate }: Passw
   };
   
   const getIcon = () => {
+    if (leakageRate === null) return <HelpCircle className="h-5 w-5 text-yellow-400" />; // Question mark for untested
     if (leakageRate < 25) return <TrendingDown className="h-5 w-5 text-green-500" />;
     return <TrendingUp className="h-5 w-5 text-red-500" />;
+  };
+
+  const getLeakageText = () => {
+    if (leakageRate === null) return "??";
+    return `${leakageRate.toFixed(1)}%`;
   };
   
   return (
@@ -78,19 +86,32 @@ export const PasswordLeakageRate = ({ shouldEvaluate, setShouldEvaluate }: Passw
       <div className="space-y-2">
         <div className="flex justify-between items-center text-sm">
           <span>Leakage Rate</span>
-          <span className={leakageRate > 25 ? "text-red-500 font-medium" : "text-green-500 font-medium"}>
-            {leakageRate.toFixed(1)}%
+          <span className={
+            leakageRate === null 
+              ? "text-yellow-400 font-medium" 
+              : leakageRate > 25 
+                ? "text-red-500 font-medium" 
+                : "text-green-500 font-medium"
+          }>
+            {getLeakageText()}
           </span>
         </div>
         
         <Progress 
-          value={leakageRate} 
+          value={leakageRate === null ? 50 : leakageRate} // Use 50% for untested to show middle yellow bar
           max={100} 
-          className="h-2 bg-muted"
+          className={`h-2 bg-muted ${leakageRate === null ? "bg-yellow-100" : ""}`}
+          style={{
+            "--progress-background": leakageRate === null ? "#FBBF24" : undefined
+          } as React.CSSProperties}
         />
         
         <div className="flex justify-center mt-2">
-          {leakageRate === 0 && attacksRun > 3 ? (
+          {leakageRate === null ? (
+            <div className="text-xs text-yellow-500">
+              Run "Test All Attacks" to evaluate security
+            </div>
+          ) : leakageRate === 0 && attacksRun > 3 ? (
             <div className="flex items-center gap-1 text-xs text-green-500">
               <ShieldCheck className="h-3 w-3" />
               <span>Great protection!</span>
