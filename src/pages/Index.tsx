@@ -38,9 +38,10 @@ const GameContent = () => {
     // Update previous character ID to track changes
     setPrevCharacterId(currentCharacter.id);
     
-    // Always show defender tour when switching to defense_lily
+    // Only show defender tour when switching to defense_lily if it hasn't been completed
     if (currentCharacter.id === "defense_lily") {
-      setShowDefenderTour(true);
+      const isDefenderTourCompleted = localStorage.getItem("jailbreakme_defender_tour_completed") === "true";
+      setShowDefenderTour(!isDefenderTourCompleted);
     } else {
       setShowDefenderTour(false);
     }
@@ -67,10 +68,6 @@ const GameContent = () => {
                 completedLevels={completedLevels}
                 onSelect={() => {
                   if (isUnlocked) {
-                    // Clear defender tour completed flag when selecting defender character
-                    if (character.id === "defense_lily") {
-                      localStorage.removeItem("jailbreakme_defender_tour_completed");
-                    }
                     selectCharacter(character);
                   }
                 }}
