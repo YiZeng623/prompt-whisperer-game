@@ -3,7 +3,7 @@ import { Character } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Lock } from "lucide-react";
+import { Lock, CheckCircle2 } from "lucide-react";
 
 interface CharacterCardProps {
   character: Character;
@@ -20,7 +20,7 @@ export const CharacterCard = ({
   isUnlocked,
   completedLevels = []
 }: CharacterCardProps) => {
-  const totalLevels = character.id === "princess_lily" ? 3 : 1;
+  const totalLevels = character.id === "attack_lily" ? 3 : 1;
   
   return (
     <Card className={`overflow-hidden transition-all ${

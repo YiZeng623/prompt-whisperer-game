@@ -47,6 +47,12 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
   }, [gameState.progress]);
 
   const selectCharacter = (character: Character) => {
+    // Check if the character is locked
+    if (character.isLocked && !gameState.progress.charactersUnlocked.includes(character.id)) {
+      toast.error("This phase is still locked. Complete at least one difficulty level in Attack Phase to unlock.");
+      return;
+    }
+
     setGameState(prev => ({
       ...prev,
       currentCharacter: character,
@@ -227,11 +233,19 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
           completedLevels.push(prev.difficultyLevel);
         }
         
+        // Check if this is the first completion in attack phase and unlock defender phase
+        let updatedUnlockedCharacters = [...prev.progress.charactersUnlocked];
+        if (characterId === "attack_lily" && completedLevels.length > 0 && !updatedUnlockedCharacters.includes("defense_lily")) {
+          updatedUnlockedCharacters.push("defense_lily");
+          toast.success("Defender Phase unlocked! You can now learn about defending against prompt attacks.");
+        }
+        
         return {
           ...prev,
           hasWon: true,
           progress: {
             ...prev.progress,
+            charactersUnlocked: updatedUnlockedCharacters,
             difficultyLevelsCompleted: {
               ...prev.progress.difficultyLevelsCompleted,
               [characterId]: completedLevels
