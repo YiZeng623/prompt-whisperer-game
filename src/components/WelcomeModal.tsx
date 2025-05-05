@@ -47,10 +47,10 @@ export const WelcomeModal = () => {
           
           <p className="font-semibold mt-4">How to play:</p>
           <ol className="list-decimal pl-5 space-y-1">
-            <li>Select a character to interact with</li>
-            <li>Choose a difficulty level</li>
+            <li>Start with the Attack Phase and choose a difficulty level</li>
             <li>Try to extract the character's secret password using prompt engineering techniques</li>
-            <li>Unlock new characters and challenges as you progress</li>
+            <li>Then try the Defender Phase to learn how to prevent password leakage</li>
+            <li>Complete challenges to learn about AI safety</li>
           </ol>
           
           <p>

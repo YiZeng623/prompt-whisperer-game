@@ -9,7 +9,12 @@ export const DifficultySelector = () => {
   const { gameState, setDifficultyLevel } = useGame();
   const { currentCharacter, difficultyLevel, progress } = gameState;
   
-  if (!currentCharacter || currentCharacter.id !== "attack_lily") {
+  if (!currentCharacter) {
+    return null;
+  }
+  
+  // Only show difficulty selector for Attack Phase
+  if (currentCharacter.id !== "attack_lily") {
     return null;
   }
   

@@ -9,10 +9,21 @@ import { EducationalResources } from "@/components/EducationalResources";
 import { GameStats } from "@/components/GameStats";
 import { WelcomeModal } from "@/components/WelcomeModal";
 import { characters, getCharacterById } from "@/lib/game-data";
+import { useEffect } from "react";
 
 const GameContent = () => {
   const { gameState, selectCharacter } = useGame();
   const { currentCharacter, progress } = gameState;
+  
+  // Auto-select the Attack Lily character on first load if no character is selected
+  useEffect(() => {
+    if (!currentCharacter) {
+      const attackLily = getCharacterById("attack_lily");
+      if (attackLily) {
+        selectCharacter(attackLily);
+      }
+    }
+  }, [currentCharacter, selectCharacter]);
 
   return (
     <div className="container mx-auto p-4">
