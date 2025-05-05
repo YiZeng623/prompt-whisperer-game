@@ -97,7 +97,6 @@
 
 /* Tour-related styles */
 .tour-active [data-tour] {
-  opacity: 0.4;
   pointer-events: none;
   position: relative;
   z-index: 45;
