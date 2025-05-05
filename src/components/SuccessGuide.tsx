@@ -38,7 +38,7 @@ export const SuccessGuide = () => {
   
   // Function to handle defense mode selection
   const handleSelectDefenseMode = () => {
-    // Completely remove the tour flag to ensure it shows
+    // Completely remove the tour flag to ensure it shows for first-time visitors
     localStorage.removeItem("jailbreakme_defender_tour_completed");
     console.log("Success popup: Reset defender tour flag before selection");
     

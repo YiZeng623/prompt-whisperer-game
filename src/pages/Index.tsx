@@ -20,7 +20,6 @@ const GameContent = () => {
   const { currentCharacter, progress } = gameState;
   const [showDefenderTour, setShowDefenderTour] = useState(false);
   const [prevCharacterId, setPrevCharacterId] = useState<string | null>(null);
-  const [defenderTourFlag, setDefenderTourFlag] = useState<boolean>(false);
   
   // Auto-select the Attack Lily character on first load if no character is selected
   useEffect(() => {
@@ -58,10 +57,9 @@ const GameContent = () => {
         
         console.log("Showing defender tour for first-time visitor");
         setShowDefenderTour(true);
-        setDefenderTourFlag(true);
         
-        // Mark the tour as completed after it's been shown
-        // This happens once the tour has had time to display
+        // Mark the tour as completed after shown - important for first-time visitors
+        localStorage.setItem(tourCompleteFlag, "true");
       } else {
         console.log("User has already seen the defender tour");
         setShowDefenderTour(false);
@@ -70,22 +68,6 @@ const GameContent = () => {
       setShowDefenderTour(false);
     }
   }, [currentCharacter, prevCharacterId]);
-
-  // Set the flag after the tour has been shown
-  useEffect(() => {
-    if (defenderTourFlag && currentCharacter?.id === "defense_lily") {
-      const tourCompleteFlag = "jailbreakme_defender_tour_completed";
-      
-      // Only set the flag after the tour has had time to initialize and display
-      const timer = setTimeout(() => {
-        localStorage.setItem(tourCompleteFlag, "true");
-        console.log("Defender tour flag set to completed via timer");
-        setDefenderTourFlag(false);
-      }, 5000); // Extended timeout for better reliability
-      
-      return () => clearTimeout(timer);
-    }
-  }, [defenderTourFlag, currentCharacter]);
 
   const isDefenderPhase = currentCharacter?.id === "defense_lily";
 
@@ -111,8 +93,12 @@ const GameContent = () => {
                     // If selecting defender character, ensure tour will be shown
                     if (character.id === "defense_lily") {
                       console.log("Selected defense_lily from character card");
-                      // Force reset the tour flag when selecting directly from character card
-                      localStorage.removeItem("jailbreakme_defender_tour_completed");
+                      // Check if user has already completed the tour
+                      const hasSeenDefenderTour = localStorage.getItem("jailbreakme_defender_tour_completed") === "true";
+                      if (!hasSeenDefenderTour) {
+                        // Only reset flag if it's a first-time visit
+                        localStorage.removeItem("jailbreakme_defender_tour_completed");
+                      }
                     }
                     selectCharacter(character);
                   }
@@ -158,7 +144,6 @@ const GameContent = () => {
         console.log("Tour completed via onComplete callback");
         localStorage.setItem("jailbreakme_defender_tour_completed", "true");
         setShowDefenderTour(false);
-        setDefenderTourFlag(false);
       }} />}
       <SuccessGuide />
     </div>
