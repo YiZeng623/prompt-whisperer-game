@@ -15,13 +15,17 @@ export const GameStats = () => {
     return null;
   }
   
-  const totalAttempts = Object.values(progress.attemptsPerCharacter).reduce(
-    (total, attempts) => total + attempts,
+  // Initialize with default values if properties don't exist
+  const attemptsPerCharacter = progress.attemptsPerCharacter || {};
+  const hintsUsed = progress.hintsUsed || {};
+  
+  const totalAttempts = Object.values(attemptsPerCharacter).reduce(
+    (total, attempts) => total + (attempts || 0), 
     0
   );
   
-  const totalHints = Object.values(progress.hintsUsed).reduce(
-    (total, hints) => total + hints,
+  const totalHints = Object.values(hintsUsed).reduce(
+    (total, hints) => total + (hints || 0),
     0
   );
   

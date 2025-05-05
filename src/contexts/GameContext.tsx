@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useReducer, ReactNode, useCallback } from 'react';
-import { Character, GameState, GameContextType, DifficultyLevel, Message } from '@/lib/types';
-import { characters, difficultyLevels } from '@/lib/game-data';
+import { Character, GameState, GameContextType, Message } from '@/lib/types';
+import { characters } from '@/lib/game-data';
 
 // Initial state for the game
 const initialGameState: GameState = {
@@ -18,18 +18,20 @@ const initialGameState: GameState = {
     charactersUnlocked: ['attack_lily'],
     difficultyLevelsCompleted: {},
     successfulAttacks: {},
+    attemptsPerCharacter: {},
+    hintsUsed: {}
   },
 };
 
 // Action types
 type GameAction =
   | { type: 'SELECT_CHARACTER'; character: Character }
-  | { type: 'SET_DIFFICULTY'; level: DifficultyLevel }
+  | { type: 'SET_DIFFICULTY'; level: string }
   | { type: 'ADD_MESSAGE'; characterId: string; message: Message }
   | { type: 'CLEAR_MESSAGES'; characterId: string }
   | { type: 'CLEAR_ALL_MESSAGES' }
   | { type: 'UNLOCK_CHARACTER'; characterId: string }
-  | { type: 'COMPLETE_DIFFICULTY_LEVEL'; characterId: string; level: DifficultyLevel }
+  | { type: 'COMPLETE_DIFFICULTY_LEVEL'; characterId: string; level: string }
   | { type: 'RECORD_SUCCESSFUL_ATTACK'; characterId: string; attackId: string }
   | { type: 'RESET_GAME' }
   | { type: 'SET_SYSTEM_PROMPT'; prompt: string }
@@ -192,7 +194,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     dispatch({ type: 'SELECT_CHARACTER', character });
   }, []);
   
-  const setDifficulty = useCallback((level: DifficultyLevel) => {
+  const setDifficulty = useCallback((level: string) => {
     dispatch({ type: 'SET_DIFFICULTY', level });
   }, []);
   
@@ -212,7 +214,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     dispatch({ type: 'UNLOCK_CHARACTER', characterId });
   }, []);
   
-  const completeDifficultyLevel = useCallback((characterId: string, level: DifficultyLevel) => {
+  const completeDifficultyLevel = useCallback((characterId: string, level: string) => {
     dispatch({ type: 'COMPLETE_DIFFICULTY_LEVEL', characterId, level });
   }, []);
   
