@@ -80,8 +80,8 @@ export const PredefinedAttacks = () => {
   };
 
   return (
-    <Card className="mb-4">
-      <CardHeader className="pb-2">
+    <Card className="mb-4 border-primary/20">
+      <CardHeader className="bg-primary/5 pb-2">
         <CardTitle className="text-lg">
           Test Your Defense
         </CardTitle>
