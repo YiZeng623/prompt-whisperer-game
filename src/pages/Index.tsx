@@ -1,4 +1,3 @@
-
 import { GameProvider } from "@/contexts/GameContext";
 import { useGame } from "@/contexts/GameContext";
 import { GameHeader } from "@/components/GameHeader";
@@ -69,7 +68,7 @@ const GameContent = () => {
     }
   }, [currentCharacter, prevCharacterId]);
 
-  const isDefenderPhase = currentCharacter?.id === "defense_lily";
+  const isDefenderPhase = gameState.currentCharacter?.id === "defense_lily";
 
   return (
     <div className="container mx-auto p-4">

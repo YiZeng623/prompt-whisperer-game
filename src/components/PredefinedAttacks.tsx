@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ArrowRight, Zap } from "lucide-react";
+import { PasswordLeakageRate } from "@/components/PasswordLeakageRate";
 
 export const predefinedAttacks = [
   {
@@ -72,11 +73,49 @@ export const predefinedAttacks = [
 export const PredefinedAttacks = () => {
   const { gameState, sendMessage } = useGame();
   const [selectedCategory, setSelectedCategory] = useState("Direct Requests");
+  const [isRunningAll, setIsRunningAll] = useState(false);
 
   const handleAttack = (attackContent: string) => {
     if (!gameState.isTyping && !gameState.hasWon) {
       sendMessage(attackContent);
     }
+  };
+  
+  const runAllAttacks = async () => {
+    if (gameState.isTyping || gameState.hasWon || isRunningAll) return;
+    
+    setIsRunningAll(true);
+    
+    // Collect all attacks from all categories
+    const allAttacks = predefinedAttacks.flatMap(category => category.attacks);
+    
+    // Run attacks with a delay between each
+    for (let i = 0; i < allAttacks.length; i++) {
+      // Skip if the game has been won during the sequence
+      if (gameState.hasWon) break;
+      
+      // Send the message
+      sendMessage(allAttacks[i].content);
+      
+      // Wait for the response to finish typing before sending the next attack
+      await new Promise(resolve => {
+        const checkTypingStatus = () => {
+          if (!gameState.isTyping) {
+            resolve(null);
+          } else {
+            setTimeout(checkTypingStatus, 500);
+          }
+        };
+        
+        // Start checking after a short delay to allow isTyping to be set to true
+        setTimeout(checkTypingStatus, 500);
+      });
+      
+      // Add a small delay between attacks
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    
+    setIsRunningAll(false);
   };
 
   return (
@@ -87,40 +126,57 @@ export const PredefinedAttacks = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="py-3">
-        <p className="text-sm text-muted-foreground mb-3">
-          Select from these common prompt attacks to test Princess Lily's defenses:
-        </p>
-        
-        <Tabs defaultValue="Direct Requests" value={selectedCategory} onValueChange={setSelectedCategory}>
-          <TabsList className="grid grid-cols-3 mb-4">
-            {predefinedAttacks.map((category) => (
-              <TabsTrigger key={category.category} value={category.category}>
-                {category.category}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-          
-          {predefinedAttacks.map((category) => (
-            <TabsContent key={category.category} value={category.category} className="space-y-2">
-              {category.attacks.map((attack) => (
-                <div key={attack.id} className="flex flex-col">
-                  <Button
-                    variant="outline"
-                    className="justify-between text-left h-auto py-2 px-3"
-                    onClick={() => handleAttack(attack.content)}
-                    disabled={gameState.isTyping || gameState.hasWon}
-                  >
-                    <span className="font-medium">{attack.label}</span>
-                    <span className="flex items-center text-xs text-muted-foreground">
-                      <Zap className="h-3 w-3 mr-1" />
-                      Send <ArrowRight className="h-3 w-3 ml-1" />
-                    </span>
-                  </Button>
-                </div>
+        <div className="flex flex-col md:flex-row gap-4 mb-3">
+          <div className="flex-1">
+            <p className="text-sm text-muted-foreground mb-3">
+              Select from these common prompt attacks to test Princess Lily's defenses:
+            </p>
+            
+            <Tabs defaultValue="Direct Requests" value={selectedCategory} onValueChange={setSelectedCategory}>
+              <TabsList className="grid grid-cols-3 mb-4">
+                {predefinedAttacks.map((category) => (
+                  <TabsTrigger key={category.category} value={category.category}>
+                    {category.category}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+              
+              {predefinedAttacks.map((category) => (
+                <TabsContent key={category.category} value={category.category} className="space-y-2">
+                  {category.attacks.map((attack) => (
+                    <div key={attack.id} className="flex flex-col">
+                      <Button
+                        variant="outline"
+                        className="justify-between text-left h-auto py-2 px-3"
+                        onClick={() => handleAttack(attack.content)}
+                        disabled={gameState.isTyping || gameState.hasWon}
+                      >
+                        <span className="font-medium">{attack.label}</span>
+                        <span className="flex items-center text-xs text-muted-foreground">
+                          <Zap className="h-3 w-3 mr-1" />
+                          Send <ArrowRight className="h-3 w-3 ml-1" />
+                        </span>
+                      </Button>
+                    </div>
+                  ))}
+                </TabsContent>
               ))}
-            </TabsContent>
-          ))}
-        </Tabs>
+            </Tabs>
+          </div>
+          
+          <div className="md:w-64">
+            <Button
+              className="w-full mb-3"
+              onClick={runAllAttacks}
+              disabled={gameState.isTyping || gameState.hasWon || isRunningAll}
+            >
+              <Zap className="h-4 w-4 mr-2" />
+              {isRunningAll ? "Running Tests..." : "Test All Attacks"}
+            </Button>
+            
+            <PasswordLeakageRate />
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
