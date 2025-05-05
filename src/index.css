@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -104,21 +105,20 @@
   z-index: 45;
 }
 
-/* Style for highlighted elements */
+/* Style for highlighted elements - completely transparent inside with white glow */
 .tour-highlight {
-  opacity: 1 !important;
-  backdrop-filter: none !important;
+  opacity: 1 !important; 
   background: transparent !important;
   box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.8), 0 0 30px 8px rgba(255, 255, 255, 0.4) !important;
   position: relative;
   z-index: 60 !important;
   pointer-events: auto !important;
+  backdrop-filter: none !important;
 }
 
 /* Container highlight style for button group */
 .tour-button-group-highlight {
   opacity: 1 !important;
-  backdrop-filter: none !important;
   background: transparent !important;
   box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.5), 0 0 30px 8px rgba(255, 255, 255, 0.2) !important;
   position: relative;
@@ -126,18 +126,19 @@
   padding: 8px !important;
   border-radius: 8px !important;
   margin: -8px !important;
+  backdrop-filter: none !important;
 }
 
 /* Individual button highlight style - increased z-index to show above overlay */
 .tour-button-highlight {
   opacity: 1 !important;
-  backdrop-filter: none !important;
   background: transparent !important;
   box-shadow: 0 0 0 3px #F97316, 0 0 15px 5px rgba(249, 115, 22, 0.4) !important;
   position: relative;
   z-index: 70 !important;
   pointer-events: auto !important;
   isolation: isolate !important;
+  backdrop-filter: none !important;
 }
 
 /* Make buttons and interactive elements inside highlighted containers fully visible and interactive */
@@ -161,7 +162,6 @@
 [data-tour="hint-button"].tour-highlight,
 [data-tour="password-button"].tour-highlight {
   background-color: transparent !important;
-  backdrop-filter: none !important;
   box-shadow: none !important;
   z-index: 70 !important;
 }
@@ -172,7 +172,7 @@
   z-index: 65 !important;
 }
 
-/* Ensure all children of the highlighted elements are visible */
+/* Ensure all children of the highlighted elements are fully visible */
 .tour-highlight *,
 .tour-button-group-highlight *,
 .tour-button-highlight * {
