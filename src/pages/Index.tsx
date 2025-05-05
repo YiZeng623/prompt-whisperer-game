@@ -1,3 +1,4 @@
+
 import { GameProvider } from "@/contexts/GameContext";
 import { useGame } from "@/contexts/GameContext";
 import { GameHeader } from "@/components/GameHeader";
@@ -62,7 +63,7 @@ const GameContent = () => {
         setTimeout(() => {
           localStorage.setItem(tourCompleteFlag, "true");
           console.log("Defender tour flag set to completed");
-        }, 2000);
+        }, 3000); // Extended timeout for better reliability
       } else {
         console.log("User has already seen the defender tour");
         setShowDefenderTour(false);
@@ -93,9 +94,11 @@ const GameContent = () => {
                 completedLevels={completedLevels}
                 onSelect={() => {
                   if (isUnlocked) {
-                    // If selecting defender for the first time, ensure tour will be shown
+                    // If selecting defender character, ensure tour will be shown
                     if (character.id === "defense_lily") {
                       console.log("Selected defense_lily from character card");
+                      // Force reset the tour flag when selecting directly from character card
+                      localStorage.removeItem("jailbreakme_defender_tour_completed");
                     }
                     selectCharacter(character);
                   }
