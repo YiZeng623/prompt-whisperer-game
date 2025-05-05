@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
@@ -137,13 +136,12 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
     
     // For button steps, handle special button highlighting
     if (isButtonStep) {
-      // Create a button group container if it doesn't exist
+      // Find the button group container
       let buttonGroupEl = document.querySelector('[data-tour="button-group"]');
       if (!buttonGroupEl) {
         // Find the button container in the chat header
         const buttonContainer = document.querySelector('.CardHeader .flex.items-center.gap-2');
         if (buttonContainer) {
-          // Add the data-tour attribute to the button container
           buttonContainer.setAttribute('data-tour', 'button-group');
           buttonGroupEl = buttonContainer;
         }
@@ -151,7 +149,6 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
       
       // Apply appropriate highlights
       if (buttonGroupEl) {
-        // Apply the group highlight
         buttonGroupEl.classList.add('tour-button-group-highlight');
         
         // Apply individual button highlight based on the step
@@ -242,8 +239,6 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
     if (!targetEl) return { top: '50%', left: '50%', placement: 'bottom' };
     
     const rect = targetEl.getBoundingClientRect();
-    const windowHeight = window.innerHeight;
-    const windowWidth = window.innerWidth;
     
     // Use the placement defined in the tour step
     const placement = currentTourStep.placement || 'bottom';
@@ -286,7 +281,7 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
 
   return (
     <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 1000 }}>
-      {/* Transparent overlay */}
+      {/* Overlay */}
       <TourOverlay 
         isActive={true} 
         onClick={(e) => e.stopPropagation()} 
