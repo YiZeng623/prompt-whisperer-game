@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -16,8 +15,11 @@ export const EducationalResources = () => {
     setActiveTab(isDefenderPhase ? "defenses" : "tips");
   }, [isDefenderPhase]);
 
+  // Set height based on the current phase
+  const cardHeight = isDefenderPhase ? "h-[650px]" : "h-[500px]";
+
   return (
-    <Card className="border-muted bg-card/60 backdrop-blur h-[500px] flex flex-col">
+    <Card className={`border-muted bg-card/60 backdrop-blur ${cardHeight} flex flex-col`}>
       <CardHeader className="pb-3 flex-shrink-0">
         <CardTitle>Prompt Engineering Resources</CardTitle>
         <CardDescription>
