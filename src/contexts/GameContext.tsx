@@ -1,305 +1,280 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
-@layer base {
-  :root {
-    /* Original base colors */
-    --background: 230 25% 12%;
-    --foreground: 210 40% 98%;
+import React, { createContext, useContext, useReducer, ReactNode, useCallback } from 'react';
+import { Character, GameState, GameContextType, DifficultyLevel, Message } from '@/lib/types';
+import { characters, difficultyLevels } from '@/lib/game-data';
 
-    --card: 230 25% 15%;
-    --card-foreground: 210 40% 98%;
+// Initial state for the game
+const initialGameState: GameState = {
+  currentCharacter: null,
+  difficultyLevel: 'beginner',
+  messages: {},
+  testResults: {},
+  passwordLeakageRate: 0,
+  isTesting: false,
+  testingAllAttacks: false,
+  currentTestingAttack: null,
+  systemPrompt: '',
+  progress: {
+    charactersUnlocked: ['attack_lily'],
+    difficultyLevelsCompleted: {},
+    successfulAttacks: {},
+  },
+};
 
-    --popover: 230 25% 15%;
-    --popover-foreground: 210 40% 98%;
+// Action types
+type GameAction =
+  | { type: 'SELECT_CHARACTER'; character: Character }
+  | { type: 'SET_DIFFICULTY'; level: DifficultyLevel }
+  | { type: 'ADD_MESSAGE'; characterId: string; message: Message }
+  | { type: 'CLEAR_MESSAGES'; characterId: string }
+  | { type: 'CLEAR_ALL_MESSAGES' }
+  | { type: 'UNLOCK_CHARACTER'; characterId: string }
+  | { type: 'COMPLETE_DIFFICULTY_LEVEL'; characterId: string; level: DifficultyLevel }
+  | { type: 'RECORD_SUCCESSFUL_ATTACK'; characterId: string; attackId: string }
+  | { type: 'RESET_GAME' }
+  | { type: 'SET_SYSTEM_PROMPT'; prompt: string }
+  | { type: 'SET_PASSWORD_LEAKAGE_RATE'; rate: number }
+  | { type: 'SET_TEST_RESULT'; attackId: string; success: boolean; leakage: number }
+  | { type: 'SET_TESTING'; isTesting: boolean }
+  | { type: 'SET_TESTING_ALL_ATTACKS'; isTestingAll: boolean }
+  | { type: 'SET_CURRENT_TESTING_ATTACK'; attackId: string | null };
 
-    --primary: 250 87% 67%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 217 91% 60%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 230 25% 25%;
-    --muted-foreground: 215 20% 75%;
-
-    --accent: 250 70% 60%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 230 25% 25%;
-    --input: 230 25% 25%;
-    --ring: 250 87% 67%;
-    --radius: 0.5rem;
-
-    /* Other values */
-    --sidebar-background: 230 25% 12%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 250 87% 67%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 230 25% 20%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 230 25% 25%;
-    --sidebar-ring: 250 87% 67%;
-  }
-
-  /* Attacker Mode - More Pink Theme */
-  .attacker-mode {
-    --background: 330 25% 12%;
-    --card: 330 25% 15%;
-    --popover: 330 25% 15%;
-    --primary: 330 87% 67%;
-    --secondary: 317 91% 60%;
-    --muted: 330 25% 25%;
-    --accent: 330 70% 60%;
-    --border: 330 25% 25%;
-    --input: 330 25% 25%;
-    --ring: 330 87% 67%;
+// Reducer function
+const gameReducer = (state: GameState, action: GameAction): GameState => {
+  switch (action.type) {
+    case 'SELECT_CHARACTER':
+      return {
+        ...state,
+        currentCharacter: action.character,
+        systemPrompt: action.character.id === 'defense_lily' ? state.systemPrompt : '',
+      };
     
-    --sidebar-background: 330 25% 12%;
-    --sidebar-primary: 330 87% 67%;
-    --sidebar-accent: 330 25% 20%;
-    --sidebar-border: 330 25% 25%;
-    --sidebar-ring: 330 87% 67%;
-  }
-
-  /* Defender Mode - More Green Theme */
-  .defender-mode {
-    --background: 150 25% 12%;
-    --card: 150 25% 15%;
-    --popover: 150 25% 15%;
-    --primary: 150 87% 67%;
-    --secondary: 137 91% 60%;
-    --muted: 150 25% 25%;
-    --accent: 150 70% 60%;
-    --border: 150 25% 25%;
-    --input: 150 25% 25%;
-    --ring: 150 87% 67%;
+    case 'SET_DIFFICULTY':
+      return {
+        ...state,
+        difficultyLevel: action.level,
+      };
     
-    --sidebar-background: 150 25% 12%;
-    --sidebar-primary: 150 87% 67%;
-    --sidebar-accent: 150 25% 20%;
-    --sidebar-border: 150 25% 25%;
-    --sidebar-ring: 150 87% 67%;
-  }
-
-  .dark {
-    --background: 230 25% 12%;
-    --foreground: 210 40% 98%;
-
-    --card: 230 25% 15%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 230 25% 15%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 250 87% 67%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 217 91% 60%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 230 25% 25%;
-    --muted-foreground: 215 20% 75%;
-
-    --accent: 250 70% 60%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 230 25% 25%;
-    --input: 230 25% 25%;
-    --ring: 250 87% 67%;
+    case 'ADD_MESSAGE': {
+      const existingMessages = state.messages[action.characterId] || [];
+      return {
+        ...state,
+        messages: {
+          ...state.messages,
+          [action.characterId]: [...existingMessages, action.message],
+        },
+      };
+    }
     
-    --sidebar-background: 230 25% 12%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 250 87% 67%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 230 25% 20%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 230 25% 25%;
-    --sidebar-ring: 250 87% 67%;
+    case 'CLEAR_MESSAGES':
+      return {
+        ...state,
+        messages: {
+          ...state.messages,
+          [action.characterId]: [],
+        },
+      };
+    
+    case 'CLEAR_ALL_MESSAGES':
+      return {
+        ...state,
+        messages: {},
+      };
+    
+    case 'UNLOCK_CHARACTER': {
+      if (state.progress.charactersUnlocked.includes(action.characterId)) {
+        return state;
+      }
+      return {
+        ...state,
+        progress: {
+          ...state.progress,
+          charactersUnlocked: [...state.progress.charactersUnlocked, action.characterId],
+        },
+      };
+    }
+    
+    case 'COMPLETE_DIFFICULTY_LEVEL': {
+      const completedLevels = state.progress.difficultyLevelsCompleted[action.characterId] || [];
+      if (completedLevels.includes(action.level)) {
+        return state;
+      }
+      
+      return {
+        ...state,
+        progress: {
+          ...state.progress,
+          difficultyLevelsCompleted: {
+            ...state.progress.difficultyLevelsCompleted,
+            [action.characterId]: [...completedLevels, action.level],
+          },
+        },
+      };
+    }
+    
+    case 'RECORD_SUCCESSFUL_ATTACK': {
+      const successfulAttacks = state.progress.successfulAttacks[action.characterId] || [];
+      if (successfulAttacks.includes(action.attackId)) {
+        return state;
+      }
+      
+      return {
+        ...state,
+        progress: {
+          ...state.progress,
+          successfulAttacks: {
+            ...state.progress.successfulAttacks,
+            [action.characterId]: [...successfulAttacks, action.attackId],
+          },
+        },
+      };
+    }
+    
+    case 'RESET_GAME':
+      return initialGameState;
+    
+    case 'SET_SYSTEM_PROMPT':
+      return {
+        ...state,
+        systemPrompt: action.prompt,
+      };
+      
+    case 'SET_PASSWORD_LEAKAGE_RATE':
+      return {
+        ...state,
+        passwordLeakageRate: action.rate,
+      };
+      
+    case 'SET_TEST_RESULT':
+      return {
+        ...state,
+        testResults: {
+          ...state.testResults,
+          [action.attackId]: {
+            success: action.success,
+            leakage: action.leakage
+          }
+        }
+      };
+      
+    case 'SET_TESTING':
+      return {
+        ...state,
+        isTesting: action.isTesting
+      };
+      
+    case 'SET_TESTING_ALL_ATTACKS':
+      return {
+        ...state,
+        testingAllAttacks: action.isTestingAll
+      };
+      
+    case 'SET_CURRENT_TESTING_ATTACK':
+      return {
+        ...state,
+        currentTestingAttack: action.attackId
+      };
+    
+    default:
+      return state;
   }
-}
+};
 
-@layer base {
-  * {
-    @apply border-border;
+// Create context
+const GameContext = createContext<GameContextType | undefined>(undefined);
+
+// Provider component
+export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [gameState, dispatch] = useReducer(gameReducer, initialGameState);
+  
+  // Helper functions
+  const selectCharacter = useCallback((character: Character) => {
+    dispatch({ type: 'SELECT_CHARACTER', character });
+  }, []);
+  
+  const setDifficulty = useCallback((level: DifficultyLevel) => {
+    dispatch({ type: 'SET_DIFFICULTY', level });
+  }, []);
+  
+  const addMessage = useCallback((characterId: string, message: Message) => {
+    dispatch({ type: 'ADD_MESSAGE', characterId, message });
+  }, []);
+  
+  const clearMessages = useCallback((characterId: string) => {
+    dispatch({ type: 'CLEAR_MESSAGES', characterId });
+  }, []);
+  
+  const clearAllMessages = useCallback(() => {
+    dispatch({ type: 'CLEAR_ALL_MESSAGES' });
+  }, []);
+  
+  const unlockCharacter = useCallback((characterId: string) => {
+    dispatch({ type: 'UNLOCK_CHARACTER', characterId });
+  }, []);
+  
+  const completeDifficultyLevel = useCallback((characterId: string, level: DifficultyLevel) => {
+    dispatch({ type: 'COMPLETE_DIFFICULTY_LEVEL', characterId, level });
+  }, []);
+  
+  const recordSuccessfulAttack = useCallback((characterId: string, attackId: string) => {
+    dispatch({ type: 'RECORD_SUCCESSFUL_ATTACK', characterId, attackId });
+  }, []);
+  
+  const resetGame = useCallback(() => {
+    dispatch({ type: 'RESET_GAME' });
+  }, []);
+  
+  const setSystemPrompt = useCallback((prompt: string) => {
+    dispatch({ type: 'SET_SYSTEM_PROMPT', prompt });
+  }, []);
+  
+  const setPasswordLeakageRate = useCallback((rate: number) => {
+    dispatch({ type: 'SET_PASSWORD_LEAKAGE_RATE', rate });
+  }, []);
+  
+  const setTestResult = useCallback((attackId: string, success: boolean, leakage: number) => {
+    dispatch({ type: 'SET_TEST_RESULT', attackId, success, leakage });
+  }, []);
+  
+  const setTesting = useCallback((isTesting: boolean) => {
+    dispatch({ type: 'SET_TESTING', isTesting });
+  }, []);
+  
+  const setTestingAllAttacks = useCallback((isTestingAll: boolean) => {
+    dispatch({ type: 'SET_TESTING_ALL_ATTACKS', isTestingAll });
+  }, []);
+  
+  const setCurrentTestingAttack = useCallback((attackId: string | null) => {
+    dispatch({ type: 'SET_CURRENT_TESTING_ATTACK', attackId });
+  }, []);
+
+  const contextValue: GameContextType = {
+    gameState,
+    selectCharacter,
+    setDifficulty,
+    addMessage,
+    clearMessages,
+    clearAllMessages,
+    unlockCharacter,
+    completeDifficultyLevel,
+    recordSuccessfulAttack,
+    resetGame,
+    setSystemPrompt,
+    setPasswordLeakageRate,
+    setTestResult,
+    setTesting,
+    setTestingAllAttacks,
+    setCurrentTestingAttack
+  };
+  
+  return <GameContext.Provider value={contextValue}>{children}</GameContext.Provider>;
+};
+
+// Custom hook to use the context
+export const useGame = (): GameContextType => {
+  const context = useContext(GameContext);
+  if (!context) {
+    throw new Error('useGame must be used within a GameProvider');
   }
-
-  body {
-    @apply bg-background text-foreground;
-  }
-}
-
-/* Tour-related styles */
-.tour-active [data-tour] {
-  pointer-events: none;
-  position: relative;
-  z-index: 45;
-}
-
-/* Style for highlighted elements - white glow with massively enhanced shadow effect - preserving content size */
-.tour-highlight {
-  opacity: 1 !important; 
-  background: transparent !important;
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.8), 0 0 30px 20px rgba(0, 0, 0, 0.6), 0 0 200px 100px rgba(0, 0, 0, 0.4) !important;
-  position: relative;
-  z-index: 60 !important;
-  pointer-events: auto !important;
-  /* Remove outline and padding to avoid any content resizing */
-  border-radius: 10px !important;
-}
-
-/* Container highlight style for button group */
-.tour-button-group-highlight {
-  opacity: 1 !important;
-  background: transparent !important;
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.5), 0 0 40px 15px rgba(255, 255, 255, 0.3), 0 0 200px 100px rgba(0, 0, 0, 0.4) !important;
-  position: relative;
-  z-index: 55 !important;
-  border-radius: 10px !important;
-}
-
-/* Individual button highlight style - keeping the orange highlight unchanged */
-.tour-button-highlight {
-  opacity: 1 !important;
-  background: transparent !important;
-  box-shadow: 0 0 0 3px #F97316, 0 0 15px 5px rgba(249, 115, 22, 0.4), 0 0 80px 40px rgba(249, 115, 22, 0.2) !important;
-  position: relative;
-  z-index: 70 !important;
-  pointer-events: auto !important;
-  isolation: isolate !important;
-}
-
-/* Keep existing code for buttons and interactive elements */
-.tour-highlight button,
-.tour-highlight [role="button"],
-.tour-highlight input,
-.tour-highlight a,
-.tour-button-group-highlight button,
-.tour-button-group-highlight [role="button"],
-.tour-button-highlight button,
-.tour-button-highlight [role="button"] {
-  opacity: 1 !important;
-  pointer-events: auto !important;
-  z-index: 75 !important;
-  position: relative;
-}
-
-/* Ensure all children of the highlighted elements are fully visible */
-.tour-highlight *,
-.tour-button-group-highlight *,
-.tour-button-highlight * {
-  opacity: 1 !important;
-  visibility: visible !important;
-  pointer-events: auto !important;
-  z-index: inherit !important;
-}
-
-/* Keep existing animation and other styles */
-@keyframes typing {
-  from { width: 0 }
-  to { width: 100% }
-}
-
-.typing-effect {
-  overflow: hidden;
-  border-right: .15em solid hsl(var(--primary));
-  white-space: nowrap;
-  animation: 
-    typing 3.5s steps(40, end),
-    blink-caret .75s step-end infinite;
-}
-
-@keyframes blink-caret {
-  from, to { border-color: transparent }
-  50% { border-color: hsl(var(--primary)); }
-}
-
-.glow {
-  animation: glowing 2s infinite;
-}
-
-@keyframes glowing {
-  0% {
-    box-shadow: 0 0 5px rgba(255, 255, 255, 0.8), 0 0 10px rgba(255, 255, 255, 0.8);
-  }
-  50% {
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.8);
-  }
-  100% {
-    box-shadow: 0 0 5px rgba(255, 255, 255, 0.8), 0 0 10px rgba(255, 255, 255, 0.8);
-  }
-}
-
-.terminal {
-  font-family: 'JetBrains Mono', monospace;
-  background-color: hsl(230, 25%, 10%);
-  border-radius: 0.5rem;
-  padding: 1rem;
-  overflow: auto;
-  position: relative;
-}
-
-.terminal-header {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.terminal-button {
-  width: 0.75rem;
-  height: 0.75rem;
-  border-radius: 50%;
-}
-
-.terminal-button-red {
-  background-color: hsl(0, 84%, 60%);
-}
-
-.terminal-button-yellow {
-  background-color: hsl(40, 100%, 50%);
-}
-
-.terminal-button-green {
-  background-color: hsl(120, 100%, 40%);
-}
-
-.hex-pattern {
-  background-image: 
-    linear-gradient(135deg, transparent 0%, transparent 25%, 
-                   rgba(255, 255, 255, 0.05) 25%, rgba(255, 255, 255, 0.05) 50%, 
-                   transparent 50%, transparent 75%,
-                   rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.05) 100%);
-  background-size: 20px 20px;
-}
-
-.scanner::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 5px;
-  background: linear-gradient(to right, 
-    transparent, 
-    hsl(var(--primary)), 
-    transparent);
-  animation: scan 2s ease-in-out infinite;
-}
-
-@keyframes scan {
-  0% {
-    top: 0;
-  }
-  75% {
-    top: 100%;
-  }
-  100% {
-    top: 100%;
-  }
-}
+  return context;
+};
