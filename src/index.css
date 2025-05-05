@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -97,37 +98,51 @@
 
 /* Tour-related styles */
 .tour-active [data-tour] {
-  filter: blur(3px) opacity(0.2);
+  opacity: 0.2;
+  filter: blur(3px);
   transition: all 0.3s ease-in-out;
   pointer-events: none;
-  position: relative;
-  z-index: 10;
 }
 
+/* The overlay that darkens everything except highlighted elements */
+.tour-overlay {
+  background-color: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(2px);
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: auto;
+}
+
+/* Style for highlighted elements */
 .tour-highlight {
-  filter: blur(0) opacity(1) !important;
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.8), 0 0 30px 8px rgba(255, 255, 255, 0.4) !important;
-  pointer-events: auto !important;
-  position: relative;
-  z-index: 99 !important; /* Higher z-index to ensure it's above the overlay */
-}
-
-/* Make the buttons and their contents fully visible within highlighted containers */
-.tour-highlight button,
-.tour-highlight [role="button"] {
   opacity: 1 !important;
+  filter: none !important;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.8), 0 0 30px 8px rgba(255, 255, 255, 0.4) !important;
+  position: relative;
   z-index: 100 !important;
-  position: relative !important;
   pointer-events: auto !important;
 }
 
-/* Make button contents visible too */
-.tour-highlight button *,
-.tour-highlight [role="button"] * {
+/* Make buttons and interactive elements inside highlighted containers fully visible */
+.tour-highlight button,
+.tour-highlight [role="button"],
+.tour-highlight input,
+.tour-highlight a {
+  opacity: 1 !important;
+  filter: none !important;
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 100 !important;
+}
+
+/* Ensure all children of the highlighted elements are visible */
+.tour-highlight * {
   opacity: 1 !important;
   visibility: visible !important;
 }
 
+/* Animation styles */
 @keyframes glowing {
   0% {
     box-shadow: 0 0 5px theme('colors.primary.DEFAULT'), 0 0 10px theme('colors.primary.DEFAULT');

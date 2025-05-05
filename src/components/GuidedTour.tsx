@@ -1,17 +1,11 @@
-
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, RefreshCw, Lightbulb, Key } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useGame } from "@/contexts/GameContext";
 
 interface TourStep {
@@ -28,6 +22,7 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
   const [isComplete, setIsComplete] = useState<boolean>(false);
   const { gameState } = useGame();
   
+  // Define tour steps
   const attackTourSteps: TourStep[] = [
     {
       target: "[data-tour='character-cards']",
@@ -117,36 +112,34 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
   useEffect(() => {
     if (!showTour) return;
 
-    // Target the element for the current step
-    const targetEl = document.querySelector(tourSteps[currentStep]?.target) as HTMLElement;
-    const allTourElements = document.querySelectorAll('[data-tour]');
-    
-    // First clear all blur and highlights
+    // Remove all previous highlights
     document.body.classList.remove('tour-active');
+    const allTourElements = document.querySelectorAll('[data-tour]');
     allTourElements.forEach(el => {
       el.classList.remove('tour-highlight');
     });
     
-    // Now add blur to all tour elements
+    // Apply tour-active class to body for global styling
     document.body.classList.add('tour-active');
     
-    // If we found the element, highlight it
+    // Highlight the current target element
+    const targetEl = document.querySelector(tourSteps[currentStep]?.target) as HTMLElement;
     if (targetEl) {
-      // First scroll to the element
+      // Scroll to the target element
       setTimeout(() => {
         targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 100);
       
-      // Then highlight it
+      // Apply highlight to the target
       targetEl.classList.add('tour-highlight');
     }
 
     return () => {
-      // Clean up highlighting and blur when tour ends
-      if (targetEl) {
-        targetEl.classList.remove('tour-highlight');
-      }
+      // Clean up when tour ends
       document.body.classList.remove('tour-active');
+      allTourElements.forEach(el => {
+        el.classList.remove('tour-highlight');
+      });
     };
   }, [currentStep, showTour, tourSteps]);
 
@@ -181,7 +174,7 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
 
   const currentTourStep = tourSteps[currentStep];
   
-  // Function to determine appropriate position for the popover content
+  // Calculate position for popover
   const getAppropriatePosition = () => {
     if (!currentTourStep) return { top: '0px', left: '0px', placement: 'bottom' };
     
@@ -198,8 +191,8 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
     // If this step should be centered on the screen
     if (currentTourStep.centered) {
       return {
-        top: `${windowHeight / 2 - 200}px`, // Adjusted vertical position for better visibility
-        left: `${windowWidth / 2}px`, // Center horizontally
+        top: `${windowHeight / 2 - 150}px`,
+        left: `${windowWidth / 2}px`,
         placement,
         centered: true
       };
@@ -225,14 +218,9 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
   const positionInfo = getAppropriatePosition();
 
   return (
-    <div className="fixed inset-0 z-[90] pointer-events-none">
-      {/* This overlay div is below the highlighted element in z-index */}
-      <div 
-        className="absolute inset-0 bg-black/30 backdrop-blur-sm pointer-events-auto z-[95]" 
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Prevent propagation to stop tour from closing when clicking outside */}
-      </div>
+    <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 99 }}>
+      {/* Semi-transparent overlay */}
+      <div className="tour-overlay" onClick={(e) => e.stopPropagation()} />
 
       {currentTourStep && (
         <Popover open={true}>
@@ -240,7 +228,7 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
             <span className="absolute opacity-0">Trigger</span>
           </PopoverTrigger>
           <PopoverContent
-            className="w-96 pointer-events-auto border-white/50 bg-card/90 shadow-[0_0_25px_rgba(255,255,255,0.6)] max-w-[90vw] z-[101]"
+            className="w-96 pointer-events-auto border-white/50 bg-card/90 shadow-[0_0_25px_rgba(255,255,255,0.6)] max-w-[90vw]"
             align="center"
             side={positionInfo.placement as "top" | "bottom" | "left" | "right"}
             sideOffset={10}
@@ -249,7 +237,7 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
               top: positionInfo.top,
               left: positionInfo.left,
               transform: positionInfo.centered ? 'translate(-50%, 0)' : 'translateX(-50%)',
-              zIndex: 101,
+              zIndex: 110, // Ensure the popover is above everything else
             }}
           >
             <div className="space-y-3">
