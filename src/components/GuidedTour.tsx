@@ -11,7 +11,7 @@ interface TourStep {
   placement?: "top" | "bottom" | "left" | "right";
   centered?: boolean;
   highlightType?: "regular" | "buttons";
-  specificButton?: "reset" | "hint" | "password"; // To highlight a specific button
+  specificButton?: "reset" | "hint" | "password";
 }
 
 export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolean }) => {
@@ -269,11 +269,10 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
 
   return (
     <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 1000 }}>
-      {/* Transparent overlay */}
+      {/* Simple dark overlay */}
       <TourOverlay 
         isActive={true} 
         onClick={(e) => e.stopPropagation()} 
-        highlightType={currentTourStep?.highlightType}
       />
 
       {/* Popover content */}

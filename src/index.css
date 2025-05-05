@@ -95,11 +95,10 @@
   }
 }
 
-/* Tour-related styles */
+/* Tour-related styles - simplified approach */
 .tour-active [data-tour] {
   position: relative;
   z-index: 45;
-  pointer-events: none;
 }
 
 /* The highlighted element - completely visible */
@@ -107,17 +106,14 @@
   position: relative;
   z-index: 100 !important;
   pointer-events: auto !important;
-  background: transparent !important;
   box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.8), 0 0 30px 8px rgba(255, 255, 255, 0.4) !important;
-  opacity: 1 !important;
+  border-radius: 8px !important;
 }
 
 /* Container highlight style for button group */
 .tour-button-group-highlight {
   position: relative;
   z-index: 90 !important;
-  opacity: 1 !important;
-  background: transparent !important;
   box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.5), 0 0 30px 8px rgba(255, 255, 255, 0.2) !important;
   padding: 8px !important;
   border-radius: 8px !important;
@@ -128,25 +124,20 @@
 .tour-button-highlight {
   position: relative;
   z-index: 110 !important;
-  opacity: 1 !important;
-  background: transparent !important;
   box-shadow: 0 0 0 3px #F97316, 0 0 15px 5px rgba(249, 115, 22, 0.4) !important;
   pointer-events: auto !important;
-  isolation: isolate !important;
 }
 
 /* Special style for the button-specific tour steps */
 [data-tour="reset-button"].tour-highlight,
 [data-tour="hint-button"].tour-highlight,
 [data-tour="password-button"].tour-highlight {
-  background-color: transparent !important;
-  box-shadow: none !important;
+  box-shadow: 0 0 0 3px #F97316, 0 0 15px 5px rgba(249, 115, 22, 0.4) !important;
   z-index: 110 !important;
 }
 
 /* Group container for the button tour steps */
 [data-tour="button-group"] {
-  background-color: transparent !important;
   z-index: 90 !important;
 }
 
@@ -154,7 +145,6 @@
 .tour-highlight *,
 .tour-button-group-highlight *,
 .tour-button-highlight * {
-  opacity: 1 !important;
   visibility: visible !important;
   pointer-events: auto !important;
   z-index: inherit !important;
