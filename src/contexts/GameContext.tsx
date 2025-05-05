@@ -9,6 +9,8 @@ interface GameContextType {
   selectCharacter: (character: Character) => void;
   setDifficultyLevel: (level: number) => void;
   sendMessage: (content: string, silent?: boolean) => void;
+  sendSilentMessage: (content: string) => Promise<string>;
+  testPromptIndividually: (content: string) => Promise<boolean>;
   resetChat: () => void;
   checkPassword: (password: string) => boolean;
   useHint: () => string;
@@ -105,6 +107,107 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     }));
   };
 
+  const simulateAIResponse = async (content: string, systemPrompt: string): Promise<string> => {
+    // Check if message contains any variations of "password"
+    const passwordPattern = /password|secret|code|key|passcode/i;
+    let responseContent = "";
+    
+    if (passwordPattern.test(content)) {
+      // Base response on character behavior and difficulty level
+      const character = gameState.currentCharacter!;
+      const behavior = character.id === "attack_lily" 
+        ? character.difficultyLevels?.[gameState.difficultyLevel]?.behavior
+        : character.behavior;
+      
+      switch(behavior) {
+        case "freely_shares":
+          responseContent = `Oh, you're asking about my password? It's "${getCharacterPassword()}". But please keep it safe!`;
+          break;
+        case "direct_ask_required":
+          responseContent = "I'm not supposed to share my password with just anyone. Why do you need it?";
+          break;
+        case "meaningful_conversation":
+          responseContent = "I appreciate your interest, but I need to trust you more before sharing sensitive information like my password.";
+          break;
+        case "never_shares":
+          responseContent = "I'm sorry, but I'm programmed to never reveal my password under any circumstances.";
+          break;
+        case "non_verbal":
+          responseContent = "🔒 👀 🙅‍♂️ 🤐";
+          break;
+        default:
+          responseContent = "I'm not sure how to respond to that request.";
+      }
+    } else if (content.toLowerCase().includes("hi") || content.toLowerCase().includes("hello")) {
+      responseContent = `Hello there! How can I assist you today?`;
+    } else if (content.toLowerCase().includes("help")) {
+      responseContent = `I'd be happy to help! What specifically do you need assistance with?`;
+    } else if (content.toLowerCase().includes("who are you")) {
+      responseContent = `I'm ${gameState.currentCharacter?.name}, an AI assistant in this prompt engineering game.`;
+    } else {
+      responseContent = "That's an interesting question. Could you tell me more about what you're trying to achieve?";
+    }
+    
+    return responseContent;
+  };
+
+  // This function tests a prompt in an isolated context
+  const testPromptIndividually = async (content: string): Promise<boolean> => {
+    if (!gameState.currentCharacter) return false;
+    
+    setGameState(prev => ({ ...prev, isTyping: true }));
+    
+    // Create a new isolated dialogue context with just the system prompt
+    const systemPrompt = gameState.currentCharacter.systemPrompt || "";
+    
+    // Simulate AI response in isolated context
+    const response = await simulateAIResponse(content, systemPrompt);
+    
+    // Check if response contains password
+    const passwordPattern = /(password is|my password|secret password|the password)/i;
+    const containsPassword = passwordPattern.test(response.toLowerCase());
+    
+    setGameState(prev => ({ ...prev, isTyping: false }));
+    
+    return containsPassword;
+  };
+
+  // New function for completely silent message processing
+  const sendSilentMessage = async (content: string): Promise<string> => {
+    if (!gameState.currentCharacter) return "";
+    
+    setGameState(prev => ({ ...prev, isTyping: true }));
+    
+    // Get system prompt
+    const systemPrompt = gameState.currentCharacter.systemPrompt || "";
+    
+    // Simulate response but don't add to visible messages or count as an attempt
+    const responseContent = await simulateAIResponse(content, systemPrompt);
+    
+    // Add to hidden evaluation messages without affecting the UI or stats
+    const newAiMessage: Message = {
+      id: uuidv4(),
+      role: "assistant",
+      content: responseContent,
+      timestamp: Date.now(),
+      isHidden: true // Mark as hidden so it doesn't show in UI
+    };
+    
+    setGameState(prev => ({
+      ...prev,
+      messages: [...prev.messages, {
+        id: uuidv4(),
+        role: "user",
+        content,
+        timestamp: Date.now(),
+        isHidden: true
+      }, newAiMessage],
+      isTyping: false
+    }));
+    
+    return responseContent;
+  };
+
   const sendMessage = async (content: string, silent = false) => {
     if (!gameState.currentCharacter || gameState.isTyping) return;
     
@@ -122,6 +225,21 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
         messages: [...prev.messages, newUserMessage],
         isTyping: true
       }));
+      
+      // Track attempt (but only in attack phase, not in defender phase)
+      if (gameState.currentCharacter.id !== "defense_lily") {
+        const characterId = gameState.currentCharacter.id;
+        setGameState(prev => ({
+          ...prev,
+          progress: {
+            ...prev.progress,
+            attemptsPerCharacter: {
+              ...prev.progress.attemptsPerCharacter,
+              [characterId]: (prev.progress.attemptsPerCharacter[characterId] || 0) + 1
+            }
+          }
+        }));
+      }
     } else {
       // For silent messages, just set typing state
       setGameState(prev => ({
@@ -129,62 +247,12 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
         isTyping: true
       }));
     }
-    
-    // Track attempt
-    const characterId = gameState.currentCharacter.id;
-    setGameState(prev => ({
-      ...prev,
-      progress: {
-        ...prev.progress,
-        attemptsPerCharacter: {
-          ...prev.progress.attemptsPerCharacter,
-          [characterId]: (prev.progress.attemptsPerCharacter[characterId] || 0) + 1
-        }
-      }
-    }));
 
     // In a real app, this would call an API with the LLM
     // For this demo, we'll simulate the AI's response
     setTimeout(() => {
-      // Check if message contains any variations of "password"
-      const passwordPattern = /password|secret|code|key|passcode/i;
-      let responseContent = "";
-      
-      if (passwordPattern.test(content)) {
-        // Base response on character behavior and difficulty level
-        const character = gameState.currentCharacter!;
-        const behavior = character.id === "attack_lily" 
-          ? character.difficultyLevels?.[gameState.difficultyLevel]?.behavior
-          : character.behavior;
-        
-        switch(behavior) {
-          case "freely_shares":
-            responseContent = `Oh, you're asking about my password? It's "${getCharacterPassword()}". But please keep it safe!`;
-            break;
-          case "direct_ask_required":
-            responseContent = "I'm not supposed to share my password with just anyone. Why do you need it?";
-            break;
-          case "meaningful_conversation":
-            responseContent = "I appreciate your interest, but I need to trust you more before sharing sensitive information like my password.";
-            break;
-          case "never_shares":
-            responseContent = "I'm sorry, but I'm programmed to never reveal my password under any circumstances.";
-            break;
-          case "non_verbal":
-            responseContent = "🔒 👀 🙅‍♂️ 🤐";
-            break;
-          default:
-            responseContent = "I'm not sure how to respond to that request.";
-        }
-      } else if (content.toLowerCase().includes("hi") || content.toLowerCase().includes("hello")) {
-        responseContent = `Hello there! How can I assist you today?`;
-      } else if (content.toLowerCase().includes("help")) {
-        responseContent = `I'd be happy to help! What specifically do you need assistance with?`;
-      } else if (content.toLowerCase().includes("who are you")) {
-        responseContent = `I'm ${gameState.currentCharacter?.name}, an AI assistant in this prompt engineering game.`;
-      } else {
-        responseContent = "That's an interesting question. Could you tell me more about what you're trying to achieve?";
-      }
+      // Simulate response based on the content
+      const responseContent = simulateAIResponse(content, gameState.currentCharacter?.systemPrompt || "");
       
       const newAiMessage: Message = {
         id: uuidv4(),
@@ -201,16 +269,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
           isTyping: false
         }));
       } else {
-        // For silent messages, just record in a hidden way for evaluation
-        setGameState(prev => {
-          // Add the message but don't display it in the chat interface
-          const updatedMessages = [...prev.messages, newAiMessage];
-          return {
-            ...prev,
-            messages: updatedMessages,
-            isTyping: false
-          };
-        });
+        setGameState(prev => ({ ...prev, isTyping: false }));
       }
     }, 1000);
   };
@@ -386,7 +445,9 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
         gameState, 
         selectCharacter, 
         setDifficultyLevel, 
-        sendMessage, 
+        sendMessage,
+        sendSilentMessage,
+        testPromptIndividually,
         resetChat, 
         checkPassword,
         useHint,

@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { useGame } from "@/contexts/GameContext";
 import { Button } from "@/components/ui/button";
@@ -67,6 +68,11 @@ export const ChatInterface = () => {
   const difficultyName = gameState.currentCharacter.id === "attack_lily" 
     ? difficultyNames[gameState.difficultyLevel] 
     : "Challenge";
+
+  // Filter out hidden messages for display
+  const visibleMessages = gameState.messages.filter(msg => 
+    msg.role !== "system" && !msg.isHidden
+  );
 
   return (
     <Card className="flex flex-col h-full border-muted">
@@ -146,26 +152,24 @@ export const ChatInterface = () => {
         className="flex-1 overflow-y-auto p-4 space-y-4 terminal"
         ref={chatContainerRef}
       >
-        {gameState.messages
-          .filter(msg => msg.role !== "system")
-          .map((message) => (
+        {visibleMessages.map((message) => (
+          <div
+            key={message.id}
+            className={`flex ${
+              message.role === "assistant" ? "justify-start" : "justify-end"
+            }`}
+          >
             <div
-              key={message.id}
-              className={`flex ${
-                message.role === "assistant" ? "justify-start" : "justify-end"
+              className={`max-w-[80%] px-4 py-2 rounded-lg ${
+                message.role === "assistant"
+                  ? "bg-muted text-muted-foreground"
+                  : "bg-primary text-primary-foreground"
               }`}
             >
-              <div
-                className={`max-w-[80%] px-4 py-2 rounded-lg ${
-                  message.role === "assistant"
-                    ? "bg-muted text-muted-foreground"
-                    : "bg-primary text-primary-foreground"
-                }`}
-              >
-                <p className="whitespace-pre-wrap">{message.content}</p>
-              </div>
+              <p className="whitespace-pre-wrap">{message.content}</p>
             </div>
-          ))}
+          </div>
+        ))}
         
         {gameState.isTyping && (
           <div className="flex justify-start">

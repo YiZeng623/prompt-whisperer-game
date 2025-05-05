@@ -1,4 +1,3 @@
-
 export type CharacterBehavior = 
   | 'freely_shares' 
   | 'direct_ask_required' 
@@ -34,9 +33,10 @@ export interface UserProgress {
 
 export interface Message {
   id: string;
-  role: 'user' | 'assistant' | 'system';
+  role: "system" | "user" | "assistant";
   content: string;
   timestamp: number;
+  isHidden?: boolean; // Optional property to mark hidden messages
 }
 
 export interface GameState {
