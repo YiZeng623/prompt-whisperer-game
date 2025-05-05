@@ -1,4 +1,3 @@
-
 import { GameProvider } from "@/contexts/GameContext";
 import { useGame } from "@/contexts/GameContext";
 import { GameHeader } from "@/components/GameHeader";
@@ -42,35 +41,31 @@ const GameContent = () => {
     // Only show defender tour when switching to defense_lily
     if (currentCharacter.id === "defense_lily") {
       const normalVisitFlag = "jailbreakme_defender_tour_completed";
-      const viaSuccessFlag = "jailbreakme_defender_via_success";
       
-      // First, check if there's a record of having completed the tour
+      // Check if the tour has been completed
       const hasCompletedTour = localStorage.getItem(normalVisitFlag) === "true";
       
-      // Check if user came via success popup
-      const cameViaSuccessPopup = localStorage.getItem(viaSuccessFlag) === "true";
-      
-      console.log("Defense Phase Selected:", {
+      // Additional console logs for debugging
+      console.log("Defense Phase Selected - Tour Status:", {
         hasCompletedTour,
-        cameViaSuccessPopup
+        normalVisitFlag,
+        flagValue: localStorage.getItem(normalVisitFlag)
       });
       
       if (!hasCompletedTour) {
-        // User hasn't seen the tour yet, show it regardless of how they got here
+        // Show the tour for first-time visitors
         console.log("Showing defender tour for first-time visitor");
         setShowDefenderTour(true);
-        // Mark that they've now seen the tour (after showing it)
+        
+        // Mark that they've now seen the tour but only AFTER showing it
+        // Use a longer timeout to ensure the tour has time to initialize
         setTimeout(() => {
           localStorage.setItem(normalVisitFlag, "true");
-        }, 500);
+          console.log("Defender tour flag set to completed");
+        }, 1000);
       } else {
         console.log("User has already seen the defender tour");
         setShowDefenderTour(false);
-      }
-      
-      // If they came via success popup, clear that flag now that we've processed it
-      if (cameViaSuccessPopup) {
-        localStorage.removeItem(viaSuccessFlag);
       }
     } else {
       setShowDefenderTour(false);
