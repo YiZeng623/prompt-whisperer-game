@@ -135,7 +135,7 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
     // Check if this is a button step
     const isButtonStep = currentTourStep.highlightType === "buttons";
     
-    // For button steps, add a wrapper element to group the buttons if it doesn't exist
+    // For button steps, handle special button highlighting
     if (isButtonStep) {
       // Create a button group container if it doesn't exist
       let buttonGroupEl = document.querySelector('[data-tour="button-group"]');
