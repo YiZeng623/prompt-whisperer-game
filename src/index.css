@@ -110,10 +110,7 @@
   position: relative;
   z-index: 60 !important;
   pointer-events: auto !important;
-  /* Use outline instead of margin to avoid content resizing */
-  outline: 16px solid transparent !important;
-  /* Keep padding to maintain visual spacing without shrinking content */
-  padding: 12px !important;
+  /* Remove outline and padding to avoid any content resizing */
   border-radius: 10px !important;
 }
 
@@ -124,9 +121,7 @@
   box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.5), 0 0 30px 8px rgba(255, 255, 255, 0.2) !important;
   position: relative;
   z-index: 55 !important;
-  padding: 12px !important;
   border-radius: 10px !important;
-  margin: -12px !important;
 }
 
 /* Individual button highlight style - keeping the orange highlight unchanged */
