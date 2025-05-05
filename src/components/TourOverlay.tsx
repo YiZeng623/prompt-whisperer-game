@@ -4,11 +4,13 @@ import React from "react";
 interface TourOverlayProps {
   isActive: boolean;
   onClick?: (e: React.MouseEvent) => void;
+  highlightType?: "regular" | "buttons";
 }
 
 export const TourOverlay: React.FC<TourOverlayProps> = ({ 
   isActive, 
-  onClick 
+  onClick,
+  highlightType = "regular"
 }) => {
   if (!isActive) return null;
   
@@ -21,6 +23,7 @@ export const TourOverlay: React.FC<TourOverlayProps> = ({
         backdropFilter: "none"
       }} 
       onClick={onClick}
+      data-highlight-type={highlightType}
     />
   );
 };

@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { useGame } from "@/contexts/GameContext";
 import { Button } from "@/components/ui/button";
@@ -78,7 +79,7 @@ export const ChatInterface = () => {
             {isDefenderPhase && <span className="text-xs text-muted-foreground ml-2">(Testing system prompt security)</span>}
           </CardTitle>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2" data-tour="button-group">
             <Button
               variant="outline"
               size="icon"

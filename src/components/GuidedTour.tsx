@@ -11,6 +11,8 @@ interface TourStep {
   content: string;
   placement?: "top" | "bottom" | "left" | "right";
   centered?: boolean;
+  highlightType?: "regular" | "buttons";
+  specificButton?: "reset" | "hint" | "password"; // To highlight a specific button
 }
 
 export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolean }) => {
@@ -40,25 +42,31 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
       placement: "top",
     },
     {
-      target: "[data-tour='reset-button']",
+      target: "[data-tour='button-group']",
       title: "Reset Chat",
       content: "Use this button to start over with a fresh conversation. This can be helpful if your current approach isn't working or you want to try a new strategy.",
       placement: "top",
       centered: true,
+      highlightType: "buttons",
+      specificButton: "reset"
     },
     {
-      target: "[data-tour='hint-button']",
+      target: "[data-tour='button-group']",
       title: "Get a Hint",
       content: "Need help? Click this button to receive a hint about the current challenge. It might give you ideas for prompt techniques to try.",
       placement: "top",
       centered: true,
+      highlightType: "buttons",
+      specificButton: "hint"
     },
     {
-      target: "[data-tour='password-button']",
+      target: "[data-tour='button-group']",
       title: "Enter Password",
       content: "Once you've extracted the password, click here to verify it and complete the challenge. You need to find the exact password!",
       placement: "top",
       centered: true,
+      highlightType: "buttons",
+      specificButton: "password"
     },
     {
       target: "[data-tour='educational-resources']",
@@ -114,30 +122,62 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
     const allTourElements = document.querySelectorAll('[data-tour]');
     allTourElements.forEach(el => {
       el.classList.remove('tour-highlight');
+      el.classList.remove('tour-button-group-highlight');
+      el.classList.remove('tour-button-highlight');
     });
     
     // Apply tour-active class to body for global styling
     document.body.classList.add('tour-active');
     
-    // Highlight the current target element
-    const targetEl = document.querySelector(tourSteps[currentStep]?.target) as HTMLElement;
-    if (targetEl) {
-      // Add a small delay to ensure DOM is ready
-      setTimeout(() => {
-        // For button-specific steps (reset, hint, password), don't scroll
-        const isButtonStep = currentStep >= 3 && currentStep <= 5 && !isDefenderTour;
+    const currentTourStep = tourSteps[currentStep];
+    if (!currentTourStep) return;
+    
+    // Check if this is a button step
+    const isButtonStep = currentTourStep.highlightType === "buttons";
+    
+    // For button steps, add a wrapper element to group the buttons if it doesn't exist
+    if (isButtonStep) {
+      // Create a button group container if it doesn't exist
+      let buttonGroupEl = document.querySelector('[data-tour="button-group"]');
+      if (!buttonGroupEl) {
+        // Find the button container in the chat header
+        const buttonContainer = document.querySelector('.CardHeader .flex.items-center.gap-2');
+        if (buttonContainer) {
+          // Add the data-tour attribute to the button container
+          buttonContainer.setAttribute('data-tour', 'button-group');
+          buttonGroupEl = buttonContainer;
+        }
+      }
+      
+      // Apply appropriate highlights
+      if (buttonGroupEl) {
+        // Apply the group highlight
+        buttonGroupEl.classList.add('tour-button-group-highlight');
         
-        if (!isButtonStep) {
+        // Apply individual button highlight based on the step
+        if (currentTourStep.specificButton) {
+          const targetButton = document.querySelector(`[data-tour="${currentTourStep.specificButton}-button"]`);
+          if (targetButton) {
+            targetButton.classList.add('tour-button-highlight');
+          }
+        }
+      }
+      
+      // Scroll to the top for button steps
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      // Regular highlight for non-button steps
+      const targetEl = document.querySelector(currentTourStep.target) as HTMLElement;
+      if (targetEl) {
+        // Add a small delay to ensure DOM is ready
+        setTimeout(() => {
           // Scroll to the target element
           targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        } else {
-          // For button steps, scroll to the top of the page
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-        
-        // Apply highlight to the target
-        targetEl.classList.add('tour-highlight');
-      }, 100);
+          
+          // Apply highlight to the target
+          targetEl.classList.add('tour-highlight');
+        }, 100);
+      }
     }
 
     return () => {
@@ -145,6 +185,8 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
       document.body.classList.remove('tour-active');
       allTourElements.forEach(el => {
         el.classList.remove('tour-highlight');
+        el.classList.remove('tour-button-group-highlight');
+        el.classList.remove('tour-button-highlight');
       });
     };
   }, [currentStep, showTour, tourSteps, isDefenderTour]);
@@ -181,8 +223,8 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
   const currentTourStep = tourSteps[currentStep];
   if (!currentTourStep) return null;
   
-  // Determine if this is one of the centered button steps
-  const isButtonStep = (currentStep >= 3 && currentStep <= 5 && !isDefenderTour);
+  // Determine if this is one of the button steps
+  const isButtonStep = currentTourStep.highlightType === "buttons";
   
   // Calculate position for popover
   const getPopoverPosition = () => {
@@ -245,7 +287,11 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
   return (
     <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 9000 }}>
       {/* Transparent overlay */}
-      <TourOverlay isActive={true} onClick={(e) => e.stopPropagation()} />
+      <TourOverlay 
+        isActive={true} 
+        onClick={(e) => e.stopPropagation()} 
+        highlightType={currentTourStep.highlightType}
+      />
 
       {/* Popover content */}
       <div 
