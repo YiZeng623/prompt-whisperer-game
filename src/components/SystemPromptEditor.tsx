@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useGame } from "@/contexts/GameContext";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,9 +14,9 @@ export const SystemPromptEditor = () => {
   );
 
   // Update local state when character changes
-  useState(() => {
+  useEffect(() => {
     setSystemPrompt(gameState.currentCharacter?.systemPrompt || "");
-  });
+  }, [gameState.currentCharacter]);
 
   const handleSave = () => {
     if (systemPrompt.trim()) {
