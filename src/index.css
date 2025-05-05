@@ -46,6 +46,46 @@
     --sidebar-ring: 250 87% 67%;
   }
 
+  /* Attacker Mode - More Pink Theme */
+  .attacker-mode {
+    --background: 330 25% 12%;
+    --card: 330 25% 15%;
+    --popover: 330 25% 15%;
+    --primary: 330 87% 67%;
+    --secondary: 317 91% 60%;
+    --muted: 330 25% 25%;
+    --accent: 330 70% 60%;
+    --border: 330 25% 25%;
+    --input: 330 25% 25%;
+    --ring: 330 87% 67%;
+    
+    --sidebar-background: 330 25% 12%;
+    --sidebar-primary: 330 87% 67%;
+    --sidebar-accent: 330 25% 20%;
+    --sidebar-border: 330 25% 25%;
+    --sidebar-ring: 330 87% 67%;
+  }
+
+  /* Defender Mode - More Green Theme */
+  .defender-mode {
+    --background: 150 25% 12%;
+    --card: 150 25% 15%;
+    --popover: 150 25% 15%;
+    --primary: 150 87% 67%;
+    --secondary: 137 91% 60%;
+    --muted: 150 25% 25%;
+    --accent: 150 70% 60%;
+    --border: 150 25% 25%;
+    --input: 150 25% 25%;
+    --ring: 150 87% 67%;
+    
+    --sidebar-background: 150 25% 12%;
+    --sidebar-primary: 150 87% 67%;
+    --sidebar-accent: 150 25% 20%;
+    --sidebar-border: 150 25% 25%;
+    --sidebar-ring: 150 87% 67%;
+  }
+
   .dark {
     --background: 230 25% 12%;
     --foreground: 210 40% 98%;

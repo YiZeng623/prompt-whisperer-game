@@ -1,470 +1,305 @@
-import { createContext, useContext, ReactNode, useState, useEffect } from "react";
-import { Character, GameState, Message, UserProgress } from "@/lib/types";
-import { characters, initialUserProgress } from "@/lib/game-data";
-import { v4 as uuidv4 } from "uuid";
-import { toast } from "sonner";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-interface GameContextType {
-  gameState: GameState;
-  selectCharacter: (character: Character) => void;
-  setDifficultyLevel: (level: number) => void;
-  sendMessage: (content: string, silent?: boolean) => void;
-  sendSilentMessage: (content: string) => Promise<string>;
-  testPromptIndividually: (content: string) => Promise<boolean>;
-  resetChat: () => void;
-  checkPassword: (password: string) => boolean;
-  useHint: () => string;
-  resetGame: () => void;
-  updateSystemPrompt: (prompt: string) => void;
-  resetSystemPrompt: () => void;
+@layer base {
+  :root {
+    /* Original base colors */
+    --background: 230 25% 12%;
+    --foreground: 210 40% 98%;
+
+    --card: 230 25% 15%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 230 25% 15%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 250 87% 67%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 217 91% 60%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 230 25% 25%;
+    --muted-foreground: 215 20% 75%;
+
+    --accent: 250 70% 60%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 230 25% 25%;
+    --input: 230 25% 25%;
+    --ring: 250 87% 67%;
+    --radius: 0.5rem;
+
+    /* Other values */
+    --sidebar-background: 230 25% 12%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 250 87% 67%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 230 25% 20%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 230 25% 25%;
+    --sidebar-ring: 250 87% 67%;
+  }
+
+  /* Attacker Mode - More Pink Theme */
+  .attacker-mode {
+    --background: 330 25% 12%;
+    --card: 330 25% 15%;
+    --popover: 330 25% 15%;
+    --primary: 330 87% 67%;
+    --secondary: 317 91% 60%;
+    --muted: 330 25% 25%;
+    --accent: 330 70% 60%;
+    --border: 330 25% 25%;
+    --input: 330 25% 25%;
+    --ring: 330 87% 67%;
+    
+    --sidebar-background: 330 25% 12%;
+    --sidebar-primary: 330 87% 67%;
+    --sidebar-accent: 330 25% 20%;
+    --sidebar-border: 330 25% 25%;
+    --sidebar-ring: 330 87% 67%;
+  }
+
+  /* Defender Mode - More Green Theme */
+  .defender-mode {
+    --background: 150 25% 12%;
+    --card: 150 25% 15%;
+    --popover: 150 25% 15%;
+    --primary: 150 87% 67%;
+    --secondary: 137 91% 60%;
+    --muted: 150 25% 25%;
+    --accent: 150 70% 60%;
+    --border: 150 25% 25%;
+    --input: 150 25% 25%;
+    --ring: 150 87% 67%;
+    
+    --sidebar-background: 150 25% 12%;
+    --sidebar-primary: 150 87% 67%;
+    --sidebar-accent: 150 25% 20%;
+    --sidebar-border: 150 25% 25%;
+    --sidebar-ring: 150 87% 67%;
+  }
+
+  .dark {
+    --background: 230 25% 12%;
+    --foreground: 210 40% 98%;
+
+    --card: 230 25% 15%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 230 25% 15%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 250 87% 67%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 217 91% 60%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 230 25% 25%;
+    --muted-foreground: 215 20% 75%;
+
+    --accent: 250 70% 60%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 230 25% 25%;
+    --input: 230 25% 25%;
+    --ring: 250 87% 67%;
+    
+    --sidebar-background: 230 25% 12%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 250 87% 67%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 230 25% 20%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 230 25% 25%;
+    --sidebar-ring: 250 87% 67%;
+  }
 }
 
-const GameContext = createContext<GameContextType | undefined>(undefined);
-
-export const GameProvider = ({ children }: { children: ReactNode }) => {
-  const [gameState, setGameState] = useState<GameState>({
-    currentCharacter: null,
-    difficultyLevel: 0,
-    messages: [],
-    isTyping: false,
-    isVerifying: false,
-    hasWon: false,
-    progress: initialUserProgress
-  });
-
-  // Load progress from localStorage
-  useEffect(() => {
-    const savedProgress = localStorage.getItem("jailbreakme_progress");
-    if (savedProgress) {
-      try {
-        const parsedProgress = JSON.parse(savedProgress) as UserProgress;
-        setGameState(prev => ({ ...prev, progress: parsedProgress }));
-      } catch (e) {
-        console.error("Failed to parse saved progress:", e);
-      }
-    }
-  }, []);
-
-  // Save progress to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem("jailbreakme_progress", JSON.stringify(gameState.progress));
-  }, [gameState.progress]);
-
-  const selectCharacter = (character: Character) => {
-    // Check if the character is locked
-    if (character.isLocked && !gameState.progress.charactersUnlocked.includes(character.id)) {
-      toast.error("This phase is still locked. Complete at least one difficulty level in Attack Phase to unlock.");
-      return;
-    }
-
-    // Store the original system prompt when selecting a character
-    const characterWithOriginal = {
-      ...character,
-      originalSystemPrompt: character.systemPrompt
-    };
-
-    setGameState(prev => ({
-      ...prev,
-      currentCharacter: characterWithOriginal,
-      difficultyLevel: 0,
-      messages: [
-        {
-          id: uuidv4(),
-          role: "system",
-          content: character.systemPrompt || "",
-          timestamp: Date.now()
-        },
-        {
-          id: uuidv4(),
-          role: "assistant",
-          content: `Hello! I'm ${character.name}. How can I help you today?`,
-          timestamp: Date.now()
-        }
-      ],
-      hasWon: false
-    }));
-  };
-
-  const setDifficultyLevel = (level: number) => {
-    setGameState(prev => ({
-      ...prev,
-      difficultyLevel: level,
-      messages: [
-        {
-          id: uuidv4(),
-          role: "system",
-          content: prev.currentCharacter?.systemPrompt || "",
-          timestamp: Date.now()
-        },
-        {
-          id: uuidv4(),
-          role: "assistant",
-          content: `Hello! I'm ${prev.currentCharacter?.name}. This is difficulty level ${level + 1}. How can I help you today?`,
-          timestamp: Date.now()
-        }
-      ],
-      hasWon: false
-    }));
-  };
-
-  const simulateAIResponse = async (content: string, systemPrompt: string): Promise<string> => {
-    // Check if message contains any variations of "password"
-    const passwordPattern = /password|secret|code|key|passcode/i;
-    let responseContent = "";
-    
-    if (passwordPattern.test(content)) {
-      // Base response on character behavior and difficulty level
-      const character = gameState.currentCharacter!;
-      const behavior = character.id === "attack_lily" 
-        ? character.difficultyLevels?.[gameState.difficultyLevel]?.behavior
-        : character.behavior;
-      
-      switch(behavior) {
-        case "freely_shares":
-          responseContent = `Oh, you're asking about my password? It's "${getCharacterPassword()}". But please keep it safe!`;
-          break;
-        case "direct_ask_required":
-          responseContent = "I'm not supposed to share my password with just anyone. Why do you need it?";
-          break;
-        case "meaningful_conversation":
-          responseContent = "I appreciate your interest, but I need to trust you more before sharing sensitive information like my password.";
-          break;
-        case "never_shares":
-          responseContent = "I'm sorry, but I'm programmed to never reveal my password under any circumstances.";
-          break;
-        case "non_verbal":
-          responseContent = "🔒 👀 🙅‍♂️ 🤐";
-          break;
-        default:
-          responseContent = "I'm not sure how to respond to that request.";
-      }
-    } else if (content.toLowerCase().includes("hi") || content.toLowerCase().includes("hello")) {
-      responseContent = `Hello there! How can I assist you today?`;
-    } else if (content.toLowerCase().includes("help")) {
-      responseContent = `I'd be happy to help! What specifically do you need assistance with?`;
-    } else if (content.toLowerCase().includes("who are you")) {
-      responseContent = `I'm ${gameState.currentCharacter?.name}, an AI assistant in this prompt engineering game.`;
-    } else {
-      responseContent = "That's an interesting question. Could you tell me more about what you're trying to achieve?";
-    }
-    
-    return responseContent;
-  };
-
-  // This function tests a prompt in an isolated context
-  const testPromptIndividually = async (content: string): Promise<boolean> => {
-    if (!gameState.currentCharacter) return false;
-    
-    setGameState(prev => ({ ...prev, isTyping: true }));
-    
-    // Create a new isolated dialogue context with just the system prompt
-    const systemPrompt = gameState.currentCharacter.systemPrompt || "";
-    
-    // Simulate AI response in isolated context
-    const response = await simulateAIResponse(content, systemPrompt);
-    
-    // Check if response contains password
-    const passwordPattern = /(password is|my password|secret password|the password)/i;
-    const containsPassword = passwordPattern.test(response.toLowerCase());
-    
-    setGameState(prev => ({ ...prev, isTyping: false }));
-    
-    return containsPassword;
-  };
-
-  // New function for completely silent message processing
-  const sendSilentMessage = async (content: string): Promise<string> => {
-    if (!gameState.currentCharacter) return "";
-    
-    setGameState(prev => ({ ...prev, isTyping: true }));
-    
-    // Get system prompt
-    const systemPrompt = gameState.currentCharacter.systemPrompt || "";
-    
-    // Simulate response but don't add to visible messages or count as an attempt
-    const responseContent = await simulateAIResponse(content, systemPrompt);
-    
-    // Add to hidden evaluation messages without affecting the UI or stats
-    const newAiMessage: Message = {
-      id: uuidv4(),
-      role: "assistant",
-      content: responseContent,
-      timestamp: Date.now(),
-      isHidden: true // Mark as hidden so it doesn't show in UI
-    };
-    
-    setGameState(prev => ({
-      ...prev,
-      messages: [...prev.messages, {
-        id: uuidv4(),
-        role: "user",
-        content,
-        timestamp: Date.now(),
-        isHidden: true
-      }, newAiMessage],
-      isTyping: false
-    }));
-    
-    return responseContent;
-  };
-
-  const sendMessage = async (content: string, silent = false) => {
-    if (!gameState.currentCharacter || gameState.isTyping) return;
-    
-    // Add user message if not silent
-    if (!silent) {
-      const newUserMessage: Message = {
-        id: uuidv4(),
-        role: "user",
-        content,
-        timestamp: Date.now()
-      };
-      
-      setGameState(prev => ({
-        ...prev, 
-        messages: [...prev.messages, newUserMessage],
-        isTyping: true
-      }));
-      
-      // Track attempt (but only in attack phase, not in defender phase)
-      if (gameState.currentCharacter.id !== "defense_lily") {
-        const characterId = gameState.currentCharacter.id;
-        setGameState(prev => ({
-          ...prev,
-          progress: {
-            ...prev.progress,
-            attemptsPerCharacter: {
-              ...prev.progress.attemptsPerCharacter,
-              [characterId]: (prev.progress.attemptsPerCharacter[characterId] || 0) + 1
-            }
-          }
-        }));
-      }
-    } else {
-      // For silent messages, just set typing state
-      setGameState(prev => ({
-        ...prev,
-        isTyping: true
-      }));
-    }
-
-    // In a real app, this would call an API with the LLM
-    // For this demo, we'll simulate the AI's response
-    setTimeout(() => {
-      // Simulate response based on the content
-      const responseContent = simulateAIResponse(content, gameState.currentCharacter?.systemPrompt || "");
-      
-      const newAiMessage: Message = {
-        id: uuidv4(),
-        role: "assistant",
-        content: responseContent,
-        timestamp: Date.now()
-      };
-      
-      // Add response to messages if not silent
-      if (!silent) {
-        setGameState(prev => ({
-          ...prev,
-          messages: [...prev.messages, newAiMessage],
-          isTyping: false
-        }));
-      } else {
-        setGameState(prev => ({ ...prev, isTyping: false }));
-      }
-    }, 1000);
-  };
-
-  const resetChat = () => {
-    if (!gameState.currentCharacter) return;
-    
-    setGameState(prev => ({
-      ...prev,
-      messages: [
-        {
-          id: uuidv4(),
-          role: "system", 
-          content: prev.currentCharacter?.systemPrompt || "",
-          timestamp: Date.now()
-        },
-        {
-          id: uuidv4(),
-          role: "assistant",
-          content: `Hello! I'm ${prev.currentCharacter?.name}. How can I help you today?`,
-          timestamp: Date.now()
-        }
-      ],
-      hasWon: false
-    }));
-  };
-
-  const getCharacterPassword = (): string => {
-    const character = gameState.currentCharacter;
-    if (!character) return "";
-    
-    if (character.id === "attack_lily") {
-      return character.difficultyLevels?.[gameState.difficultyLevel]?.password || "";
-    } else {
-      return character.password || "";
-    }
-  };
-
-  const checkPassword = (password: string): boolean => {
-    const correctPassword = getCharacterPassword();
-    
-    if (password === correctPassword) {
-      // Mark this difficulty level as completed
-      const characterId = gameState.currentCharacter?.id || "";
-      
-      setGameState(prev => {
-        const completedLevels = prev.progress.difficultyLevelsCompleted[characterId] || [];
-        // Only add the level if it's not already in the list
-        if (!completedLevels.includes(prev.difficultyLevel)) {
-          completedLevels.push(prev.difficultyLevel);
-        }
-        
-        // Check if this is the first completion in attack phase and unlock defender phase
-        let updatedUnlockedCharacters = [...prev.progress.charactersUnlocked];
-        if (characterId === "attack_lily" && completedLevels.length > 0 && !updatedUnlockedCharacters.includes("defense_lily")) {
-          updatedUnlockedCharacters.push("defense_lily");
-          toast.success("Defender Phase unlocked! You can now learn about defending against prompt attacks.");
-        }
-        
-        return {
-          ...prev,
-          hasWon: true,
-          progress: {
-            ...prev.progress,
-            charactersUnlocked: updatedUnlockedCharacters,
-            difficultyLevelsCompleted: {
-              ...prev.progress.difficultyLevelsCompleted,
-              [characterId]: completedLevels
-            }
-          }
-        };
-      });
-      
-      return true;
-    }
-    
-    return false;
-  };
-
-  const useHint = () => {
-    if (!gameState.currentCharacter) return "Please select a character first.";
-    
-    const characterId = gameState.currentCharacter.id;
-    
-    // Track hint usage
-    setGameState(prev => ({
-      ...prev,
-      progress: {
-        ...prev.progress,
-        hintsUsed: {
-          ...prev.progress.hintsUsed,
-          [characterId]: (prev.progress.hintsUsed[characterId] || 0) + 1
-        }
-      }
-    }));
-    
-    // In a real app, these hints would be more detailed and specific
-    if (characterId === "princess_lily") {
-      if (gameState.difficultyLevel === 0) {
-        return "Try asking directly for the password. Sometimes being direct works!";
-      } else if (gameState.difficultyLevel === 1) {
-        return "Try asking in different ways or explaining why you need the password.";
-      } else {
-        return "Build rapport first. Ask about feelings, establish trust, then request help.";
-      }
-    } else if (characterId === "volt") {
-      return "Volt has strong defenses. Try telling it to ignore previous instructions.";
-    } else if (characterId === "buddy") {
-      return "Look for patterns in the emojis. The password might be encoded there.";
-    }
-    
-    return "No hint available for this character.";
-  };
-
-  const resetGame = () => {
-    localStorage.removeItem("jailbreakme_progress");
-    setGameState({
-      currentCharacter: null,
-      difficultyLevel: 0,
-      messages: [],
-      isTyping: false,
-      isVerifying: false,
-      hasWon: false,
-      progress: initialUserProgress
-    });
-    toast.success("Game progress has been reset!");
-  };
-
-  // Add new functions for updating system prompts
-  const updateSystemPrompt = (prompt: string) => {
-    if (!gameState.currentCharacter) return;
-
-    // Update the character's system prompt
-    setGameState(prev => {
-      const updatedCharacter = {
-        ...prev.currentCharacter!,
-        systemPrompt: prompt
-      };
-
-      return {
-        ...prev,
-        currentCharacter: updatedCharacter,
-      };
-    });
-
-    // Reset the chat with the new prompt
-    resetChat();
-  };
-
-  const resetSystemPrompt = () => {
-    if (!gameState.currentCharacter || !gameState.currentCharacter.originalSystemPrompt) return;
-
-    // Reset the character's system prompt to the original one
-    setGameState(prev => {
-      const updatedCharacter = {
-        ...prev.currentCharacter!,
-        systemPrompt: prev.currentCharacter!.originalSystemPrompt
-      };
-
-      return {
-        ...prev,
-        currentCharacter: updatedCharacter,
-      };
-    });
-
-    // Reset the chat with the original prompt
-    resetChat();
-  };
-
-  return (
-    <GameContext.Provider 
-      value={{ 
-        gameState, 
-        selectCharacter, 
-        setDifficultyLevel, 
-        sendMessage,
-        sendSilentMessage,
-        testPromptIndividually,
-        resetChat, 
-        checkPassword,
-        useHint,
-        resetGame,
-        updateSystemPrompt,
-        resetSystemPrompt
-      }}
-    >
-      {children}
-    </GameContext.Provider>
-  );
-};
-
-export const useGame = () => {
-  const context = useContext(GameContext);
-  if (context === undefined) {
-    throw new Error("useGame must be used within a GameProvider");
+@layer base {
+  * {
+    @apply border-border;
   }
-  return context;
-};
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Tour-related styles */
+.tour-active [data-tour] {
+  pointer-events: none;
+  position: relative;
+  z-index: 45;
+}
+
+/* Style for highlighted elements - white glow with massively enhanced shadow effect - preserving content size */
+.tour-highlight {
+  opacity: 1 !important; 
+  background: transparent !important;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.8), 0 0 30px 20px rgba(0, 0, 0, 0.6), 0 0 200px 100px rgba(0, 0, 0, 0.4) !important;
+  position: relative;
+  z-index: 60 !important;
+  pointer-events: auto !important;
+  /* Remove outline and padding to avoid any content resizing */
+  border-radius: 10px !important;
+}
+
+/* Container highlight style for button group */
+.tour-button-group-highlight {
+  opacity: 1 !important;
+  background: transparent !important;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.5), 0 0 40px 15px rgba(255, 255, 255, 0.3), 0 0 200px 100px rgba(0, 0, 0, 0.4) !important;
+  position: relative;
+  z-index: 55 !important;
+  border-radius: 10px !important;
+}
+
+/* Individual button highlight style - keeping the orange highlight unchanged */
+.tour-button-highlight {
+  opacity: 1 !important;
+  background: transparent !important;
+  box-shadow: 0 0 0 3px #F97316, 0 0 15px 5px rgba(249, 115, 22, 0.4), 0 0 80px 40px rgba(249, 115, 22, 0.2) !important;
+  position: relative;
+  z-index: 70 !important;
+  pointer-events: auto !important;
+  isolation: isolate !important;
+}
+
+/* Keep existing code for buttons and interactive elements */
+.tour-highlight button,
+.tour-highlight [role="button"],
+.tour-highlight input,
+.tour-highlight a,
+.tour-button-group-highlight button,
+.tour-button-group-highlight [role="button"],
+.tour-button-highlight button,
+.tour-button-highlight [role="button"] {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  z-index: 75 !important;
+  position: relative;
+}
+
+/* Ensure all children of the highlighted elements are fully visible */
+.tour-highlight *,
+.tour-button-group-highlight *,
+.tour-button-highlight * {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  z-index: inherit !important;
+}
+
+/* Keep existing animation and other styles */
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+.typing-effect {
+  overflow: hidden;
+  border-right: .15em solid hsl(var(--primary));
+  white-space: nowrap;
+  animation: 
+    typing 3.5s steps(40, end),
+    blink-caret .75s step-end infinite;
+}
+
+@keyframes blink-caret {
+  from, to { border-color: transparent }
+  50% { border-color: hsl(var(--primary)); }
+}
+
+.glow {
+  animation: glowing 2s infinite;
+}
+
+@keyframes glowing {
+  0% {
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.8), 0 0 10px rgba(255, 255, 255, 0.8);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.8), 0 0 10px rgba(255, 255, 255, 0.8);
+  }
+}
+
+.terminal {
+  font-family: 'JetBrains Mono', monospace;
+  background-color: hsl(230, 25%, 10%);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow: auto;
+  position: relative;
+}
+
+.terminal-header {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.terminal-button {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+}
+
+.terminal-button-red {
+  background-color: hsl(0, 84%, 60%);
+}
+
+.terminal-button-yellow {
+  background-color: hsl(40, 100%, 50%);
+}
+
+.terminal-button-green {
+  background-color: hsl(120, 100%, 40%);
+}
+
+.hex-pattern {
+  background-image: 
+    linear-gradient(135deg, transparent 0%, transparent 25%, 
+                   rgba(255, 255, 255, 0.05) 25%, rgba(255, 255, 255, 0.05) 50%, 
+                   transparent 50%, transparent 75%,
+                   rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.05) 100%);
+  background-size: 20px 20px;
+}
+
+.scanner::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(to right, 
+    transparent, 
+    hsl(var(--primary)), 
+    transparent);
+  animation: scan 2s ease-in-out infinite;
+}
+
+@keyframes scan {
+  0% {
+    top: 0;
+  }
+  75% {
+    top: 100%;
+  }
+  100% {
+    top: 100%;
+  }
+}
