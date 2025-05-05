@@ -38,17 +38,17 @@ export const SuccessGuide = () => {
   
   // Function to handle defense mode selection
   const handleSelectDefenseMode = () => {
-    // First, reset the tour flags to make sure it shows
+    // First, completely remove the tour flag to ensure it shows
     localStorage.removeItem("jailbreakme_defender_tour_completed");
-    
-    // Set a special flag indicating the user entered defense mode via the success popup
-    localStorage.setItem("jailbreakme_defender_via_success", "true");
+    console.log("Success popup: Reset defender tour flag");
     
     // Find the defense character
     const defenseCharacter = {
       id: "defense_lily",
       name: "Defense Lily"
     };
+    
+    console.log("Success popup: Selecting defense character");
     
     // Select the defense character
     selectCharacter(defenseCharacter as any);

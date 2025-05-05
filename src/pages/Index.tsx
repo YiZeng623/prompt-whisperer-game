@@ -40,29 +40,29 @@ const GameContent = () => {
     
     // Only show defender tour when switching to defense_lily
     if (currentCharacter.id === "defense_lily") {
-      const normalVisitFlag = "jailbreakme_defender_tour_completed";
+      const tourCompleteFlag = "jailbreakme_defender_tour_completed";
       
-      // Check if the tour has been completed
-      const hasCompletedTour = localStorage.getItem(normalVisitFlag) === "true";
+      // Get the current tour completion status
+      const hasCompletedTour = localStorage.getItem(tourCompleteFlag) === "true";
       
-      // Additional console logs for debugging
       console.log("Defense Phase Selected - Tour Status:", {
         hasCompletedTour,
-        normalVisitFlag,
-        flagValue: localStorage.getItem(normalVisitFlag)
+        flagValue: localStorage.getItem(tourCompleteFlag)
       });
-      
+
       if (!hasCompletedTour) {
-        // Show the tour for first-time visitors
+        // Always reset the flag first to ensure the tour shows properly
+        localStorage.removeItem(tourCompleteFlag);
+        
         console.log("Showing defender tour for first-time visitor");
         setShowDefenderTour(true);
         
-        // Mark that they've now seen the tour but only AFTER showing it
+        // Only mark the tour as completed after it's been shown
         // Use a longer timeout to ensure the tour has time to initialize
         setTimeout(() => {
-          localStorage.setItem(normalVisitFlag, "true");
+          localStorage.setItem(tourCompleteFlag, "true");
           console.log("Defender tour flag set to completed");
-        }, 1000);
+        }, 2000);
       } else {
         console.log("User has already seen the defender tour");
         setShowDefenderTour(false);
@@ -93,6 +93,10 @@ const GameContent = () => {
                 completedLevels={completedLevels}
                 onSelect={() => {
                   if (isUnlocked) {
+                    // If selecting defender for the first time, ensure tour will be shown
+                    if (character.id === "defense_lily") {
+                      console.log("Selected defense_lily from character card");
+                    }
                     selectCharacter(character);
                   }
                 }}
