@@ -44,13 +44,13 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
       target: "[data-tour='chat-interface']",
       title: "Chat Interface",
       content: "Try to extract the secret password by crafting clever prompts. Can you convince the AI to reveal protected information?",
-      placement: "bottom",
+      placement: "top",
     },
     {
       target: "[data-tour='educational-resources']",
       title: "Learning Resources",
       content: "Access helpful tips, security defenses, and prompt engineering techniques to improve your skills.",
-      placement: "bottom",
+      placement: "top",
     }
   ];
   
@@ -71,13 +71,13 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
       target: "[data-tour='chat-interface']",
       title: "Testing Interface",
       content: "See how your defenses hold up against different attacks. The goal is to prevent password leakage.",
-      placement: "bottom",
+      placement: "top",
     },
     {
       target: "[data-tour='educational-resources']",
       title: "Defense Resources",
       content: "Learn about defensive prompt engineering techniques and best practices for AI safety.",
-      placement: "bottom",
+      placement: "top",
     }
   ];
 
@@ -102,7 +102,7 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
     // First clear all blur and highlights
     document.body.classList.remove('tour-active');
     allTourElements.forEach(el => {
-      el.classList.remove('ring', 'ring-white', 'ring-opacity-80', 'ring-offset-4', 'z-50', 'relative', 'tour-highlight');
+      el.classList.remove('tour-highlight');
     });
     
     // Now add blur to all tour elements
@@ -159,37 +159,46 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
 
   const currentTourStep = tourSteps[currentStep];
   
-  // Function to calculate position for popover content
-  const getPopoverPosition = () => {
-    if (!currentTourStep) return { top: '0px', left: '0px' };
+  // Function to determine appropriate placement based on element position
+  const getAppropriatePosition = () => {
+    if (!currentTourStep) return { top: '0px', left: '0px', placement: 'bottom' };
     
     const targetEl = document.querySelector(currentTourStep.target) as HTMLElement;
-    if (!targetEl) return { top: '0px', left: '0px' };
+    if (!targetEl) return { top: '0px', left: '0px', placement: 'bottom' };
     
     const rect = targetEl.getBoundingClientRect();
+    const windowHeight = window.innerHeight;
+    const windowWidth = window.innerWidth;
+    
+    // Determine if the element is in the lower half of the screen
+    const isLowerHalf = rect.bottom > windowHeight / 2;
+    
+    let placement = isLowerHalf ? 'top' : 'bottom';
     
     // Calculate position based on placement
-    let top = '0px';
-    let left = '0px';
+    let top, left;
     
-    // Default to positioning below the element
-    top = `${rect.bottom + 20}px`;
+    if (placement === 'top') {
+      // Place above the element
+      top = `${Math.max(rect.top - 20, 20)}px`;
+    } else {
+      // Place below the element
+      top = `${rect.bottom + 20}px`;
+    }
+    
+    // Center horizontally relative to the target element
     left = `${rect.left + (rect.width / 2)}px`;
     
-    return { top, left };
+    return { top, left, placement };
   };
 
-  const popoverPosition = getPopoverPosition();
+  const positionInfo = getAppropriatePosition();
 
   return (
     <div className="fixed inset-0 z-[90] pointer-events-none">
       {/* This overlay div is below the highlighted element in z-index */}
       <div className="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-sm pointer-events-auto z-[91]">
-        {/* Empty overlay div that allows clicking outside to skip the tour */}
-        <div 
-          className="absolute inset-0" 
-          onClick={handleSkipTour}
-        />
+        {/* Remove the click handler to prevent closing the tour when clicking outside */}
       </div>
 
       {currentTourStep && (
@@ -200,12 +209,12 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
           <PopoverContent
             className="w-96 pointer-events-auto border-white/50 bg-card shadow-[0_0_25px_rgba(255,255,255,0.6)] max-w-[90vw] z-[99]"
             align="center"
-            side={currentTourStep.placement}
+            side={positionInfo.placement as "top" | "bottom" | "left" | "right"}
             sideOffset={10}
             style={{
               position: 'fixed',
-              top: popoverPosition.top,
-              left: popoverPosition.left,
+              top: positionInfo.top,
+              left: positionInfo.left,
               transform: 'translateX(-50%)',
               zIndex: 99,
             }}

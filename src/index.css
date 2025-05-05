@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -100,6 +101,8 @@
   filter: blur(3px) opacity(0.2);
   transition: all 0.3s ease-in-out;
   pointer-events: none;
+  position: relative;
+  z-index: 92;
 }
 
 .tour-highlight {
