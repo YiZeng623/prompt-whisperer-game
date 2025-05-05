@@ -86,7 +86,7 @@ export const PredefinedAttacks = () => {
           Test Your Defense
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="py-3">
         <p className="text-sm text-muted-foreground mb-3">
           Select from these common prompt attacks to test Princess Lily's defenses:
         </p>
