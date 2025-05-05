@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -109,7 +110,7 @@
   filter: none !important;
   box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.8), 0 0 30px 8px rgba(255, 255, 255, 0.4) !important;
   position: relative;
-  z-index: 95 !important;
+  z-index: 100 !important;
   pointer-events: auto !important;
 }
 
@@ -122,7 +123,7 @@
   filter: none !important;
   pointer-events: auto !important;
   position: relative !important;
-  z-index: 96 !important;
+  z-index: 101 !important;
 }
 
 /* Ensure all children of the highlighted elements are visible */

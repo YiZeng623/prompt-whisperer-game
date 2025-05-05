@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import {
   Popover,
@@ -114,7 +113,7 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
   useEffect(() => {
     if (!showTour) return;
 
-    // Remove all previous highlights
+    // Clean up any previous highlights
     document.body.classList.remove('tour-active');
     const allTourElements = document.querySelectorAll('[data-tour]');
     allTourElements.forEach(el => {
@@ -127,13 +126,14 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
     // Highlight the current target element
     const targetEl = document.querySelector(tourSteps[currentStep]?.target) as HTMLElement;
     if (targetEl) {
-      // Scroll to the target element
+      // Add a small delay to ensure DOM is ready
       setTimeout(() => {
+        // Scroll to the target element
         targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Apply highlight to the target
+        targetEl.classList.add('tour-highlight');
       }, 100);
-      
-      // Apply highlight to the target
-      targetEl.classList.add('tour-highlight');
     }
 
     return () => {
@@ -175,89 +175,91 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
   if (!showTour || isComplete) return null;
 
   const currentTourStep = tourSteps[currentStep];
+  if (!currentTourStep) return null;
   
   // Calculate position for popover
-  const getAppropriatePosition = () => {
-    if (!currentTourStep) return { top: '0px', left: '0px', placement: 'bottom' };
-    
+  const getPopoverPosition = () => {
     const targetEl = document.querySelector(currentTourStep.target) as HTMLElement;
-    if (!targetEl) return { top: '0px', left: '0px', placement: 'bottom' };
+    if (!targetEl) return { top: '50%', left: '50%', placement: 'bottom' };
     
     const rect = targetEl.getBoundingClientRect();
     const windowHeight = window.innerHeight;
     const windowWidth = window.innerWidth;
     
     // Use the placement defined in the tour step
-    let placement = currentTourStep.placement || 'bottom';
+    const placement = currentTourStep.placement || 'bottom';
     
     // If this step should be centered on the screen
     if (currentTourStep.centered) {
       return {
-        top: `${windowHeight / 2 - 150}px`,
-        left: `${windowWidth / 2}px`,
-        placement,
-        centered: true
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        placement
       };
     }
     
     // Calculate position based on placement
-    let top, left;
+    let top, left, transform;
     
     if (placement === 'top') {
-      // Place above the element
+      // Place above the element with enough space
       top = `${Math.max(rect.top - 20, 20)}px`;
-    } else {
-      // Place below the element
+      left = `${rect.left + (rect.width / 2)}px`;
+      transform = 'translateX(-50%)';
+    } else if (placement === 'bottom') {
+      // Place below the element with enough space
       top = `${rect.bottom + 20}px`;
+      left = `${rect.left + (rect.width / 2)}px`;
+      transform = 'translateX(-50%)';
+    } else if (placement === 'left') {
+      // Place to the left of the element
+      top = `${rect.top + (rect.height / 2)}px`;
+      left = `${Math.max(rect.left - 20, 20)}px`;
+      transform = 'translate(-100%, -50%)';
+    } else {
+      // Place to the right of the element
+      top = `${rect.top + (rect.height / 2)}px`;
+      left = `${rect.right + 20}px`;
+      transform = 'translateY(-50%)';
     }
     
-    // Center horizontally relative to the target element
-    left = `${rect.left + (rect.width / 2)}px`;
-    
-    return { top, left, placement, centered: false };
+    return { top, left, transform, placement };
   };
 
-  const positionInfo = getAppropriatePosition();
+  const popoverPosition = getPopoverPosition();
 
   return (
     <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 90 }}>
-      {/* Use our extracted TourOverlay component */}
+      {/* Transparent overlay */}
       <TourOverlay isActive={true} onClick={(e) => e.stopPropagation()} />
 
-      {currentTourStep && (
-        <Popover open={true}>
-          <PopoverTrigger asChild>
-            <span className="absolute opacity-0">Trigger</span>
-          </PopoverTrigger>
-          <PopoverContent
-            className="w-96 pointer-events-auto border-white/50 bg-card/90 shadow-[0_0_25px_rgba(255,255,255,0.6)] max-w-[90vw]"
-            align="center"
-            side={positionInfo.placement as "top" | "bottom" | "left" | "right"}
-            sideOffset={10}
-            style={{
-              position: 'fixed',
-              top: positionInfo.top,
-              left: positionInfo.left,
-              transform: positionInfo.centered ? 'translate(-50%, 0)' : 'translateX(-50%)',
-              zIndex: 100, // Higher than overlay but below highlighted elements' children
-            }}
-          >
-            <div className="space-y-3">
-              <h3 className="font-medium text-xl text-center">{currentTourStep.title}</h3>
-              <p className="text-base text-center">{currentTourStep.content}</p>
-              <div className="flex justify-between pt-3">
-                <Button variant="outline" onClick={handleSkipTour}>
-                  Skip tour
-                </Button>
-                <Button onClick={handleNextStep} className="gap-1 bg-[#9b87f5] hover:bg-[#8B5CF6]">
-                  {currentStep < tourSteps.length - 1 ? "Next" : "Finish"}
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
-      )}
+      {/* Popover content */}
+      <div 
+        className="fixed pointer-events-auto bg-card/95 border border-white/20 rounded-lg shadow-xl p-6 max-w-md"
+        style={{
+          top: popoverPosition.top,
+          left: popoverPosition.left,
+          transform: popoverPosition.transform,
+          zIndex: 110,
+          width: '400px',
+          maxWidth: '90vw',
+        }}
+      >
+        <div className="space-y-4">
+          <h3 className="font-medium text-xl text-center">{currentTourStep.title}</h3>
+          <p className="text-base text-center">{currentTourStep.content}</p>
+          <div className="flex justify-between pt-3">
+            <Button variant="outline" onClick={handleSkipTour}>
+              Skip tour
+            </Button>
+            <Button onClick={handleNextStep} className="gap-1 bg-[#9b87f5] hover:bg-[#8B5CF6]">
+              {currentStep < tourSteps.length - 1 ? "Next" : "Finish"}
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
