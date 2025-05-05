@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useGame } from "@/contexts/GameContext";
 import { Button } from "@/components/ui/button";
@@ -37,8 +38,8 @@ export const SuccessGuide = () => {
   
   // Function to handle defense mode selection
   const handleSelectDefenseMode = () => {
-    // Always remove the defender tour flag to ensure it shows when entering via success popup
-    localStorage.removeItem("jailbreakme_defender_tour_completed");
+    // Set a special flag indicating the user entered defense mode via the success popup
+    localStorage.setItem("jailbreakme_defender_via_success", "true");
     
     // Find the defense character
     const defenseCharacter = {
