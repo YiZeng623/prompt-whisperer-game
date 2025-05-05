@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
@@ -221,7 +222,7 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
   const popoverPosition = getPopoverPosition();
 
   return (
-    <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 100 }}>
+    <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 1000 }}>
       {/* Transparent overlay */}
       <TourOverlay isActive={true} onClick={(e) => e.stopPropagation()} />
 
@@ -232,7 +233,7 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
           top: popoverPosition.top,
           left: popoverPosition.left,
           transform: popoverPosition.transform,
-          zIndex: 150,
+          zIndex: 1050,
           width: '400px',
           maxWidth: '90vw',
         }}
