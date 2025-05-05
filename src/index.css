@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -97,19 +98,20 @@
 
 /* Tour-related styles */
 .tour-active [data-tour] {
-  opacity: 0.3;
+  opacity: 0.4;
   transition: opacity 0.3s ease-in-out;
   pointer-events: none;
   position: relative;
-  z-index: 51;
+  z-index: 45;
 }
 
 /* Style for highlighted elements */
 .tour-highlight {
   opacity: 1 !important;
+  backdrop-filter: none !important;
   box-shadow: 0 0 0 4px hsl(var(--primary)), 0 0 30px 8px rgba(255, 255, 255, 0.4) !important;
   position: relative;
-  z-index: 100 !important;
+  z-index: 60 !important;
   pointer-events: auto !important;
 }
 
@@ -120,7 +122,7 @@
 .tour-highlight a {
   opacity: 1 !important;
   pointer-events: auto !important;
-  z-index: 101 !important;
+  z-index: 65 !important;
   position: relative;
 }
 

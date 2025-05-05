@@ -222,7 +222,7 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
   const popoverPosition = getPopoverPosition();
 
   return (
-    <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 1000 }}>
+    <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 9000 }}>
       {/* Transparent overlay */}
       <TourOverlay isActive={true} onClick={(e) => e.stopPropagation()} />
 
@@ -233,7 +233,7 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
           top: popoverPosition.top,
           left: popoverPosition.left,
           transform: popoverPosition.transform,
-          zIndex: 1050,
+          zIndex: 9050,
           width: '400px',
           maxWidth: '90vw',
         }}
