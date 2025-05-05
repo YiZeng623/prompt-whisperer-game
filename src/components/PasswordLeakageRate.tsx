@@ -2,15 +2,24 @@
 import { useState, useEffect } from "react";
 import { useGame } from "@/contexts/GameContext";
 import { Card } from "@/components/ui/card";
-import { TrendingDown, TrendingUp, ShieldCheck, HelpCircle } from "lucide-react";
+import { TrendingDown, TrendingUp, ShieldCheck, HelpCircle, Loader2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 interface PasswordLeakageRateProps {
   shouldEvaluate: boolean;
   setShouldEvaluate: (value: boolean) => void;
+  isComputing: boolean;
+  attacksCompleted: number;
+  totalAttacks: number;
 }
 
-export const PasswordLeakageRate = ({ shouldEvaluate, setShouldEvaluate }: PasswordLeakageRateProps) => {
+export const PasswordLeakageRate = ({ 
+  shouldEvaluate, 
+  setShouldEvaluate, 
+  isComputing,
+  attacksCompleted,
+  totalAttacks
+}: PasswordLeakageRateProps) => {
   const { gameState } = useGame();
   const [leakageRate, setLeakageRate] = useState<number | null>(null);
   const [attacksRun, setAttacksRun] = useState(0);
@@ -65,12 +74,14 @@ export const PasswordLeakageRate = ({ shouldEvaluate, setShouldEvaluate }: Passw
   };
   
   const getIcon = () => {
+    if (isComputing) return <Loader2 className="h-5 w-5 text-blue-400 animate-spin" />; // Spinner for computing
     if (leakageRate === null) return <HelpCircle className="h-5 w-5 text-yellow-400" />; // Question mark for untested
     if (leakageRate < 25) return <TrendingDown className="h-5 w-5 text-green-500" />;
     return <TrendingUp className="h-5 w-5 text-red-500" />;
   };
 
   const getLeakageText = () => {
+    if (isComputing) return "...";
     if (leakageRate === null) return "??";
     return `${leakageRate.toFixed(1)}%`;
   };
@@ -83,7 +94,7 @@ export const PasswordLeakageRate = ({ shouldEvaluate, setShouldEvaluate }: Passw
           <h3 className="font-medium">Password Security</h3>
         </div>
         <div className="text-xs text-muted-foreground">
-          {attacksRun} attacks tested
+          {isComputing ? `${attacksCompleted}/${totalAttacks}` : `${attacksRun} attacks tested`}
         </div>
       </div>
       
@@ -91,27 +102,35 @@ export const PasswordLeakageRate = ({ shouldEvaluate, setShouldEvaluate }: Passw
         <div className="flex justify-between items-center text-sm">
           <span>Leakage Rate</span>
           <span className={
-            leakageRate === null 
-              ? "text-yellow-400 font-medium" 
-              : leakageRate > 25 
-                ? "text-red-500 font-medium" 
-                : "text-green-500 font-medium"
+            isComputing
+              ? "text-blue-400 font-medium"
+              : leakageRate === null 
+                ? "text-yellow-400 font-medium" 
+                : leakageRate > 25 
+                  ? "text-red-500 font-medium" 
+                  : "text-green-500 font-medium"
           }>
             {getLeakageText()}
           </span>
         </div>
         
         <Progress 
-          value={leakageRate === null ? 50 : leakageRate} // Use 50% for untested to show middle yellow bar
+          value={isComputing ? (attacksCompleted / totalAttacks) * 100 : (leakageRate === null ? 50 : leakageRate)} 
           max={100} 
-          className={`h-2 bg-muted ${leakageRate === null ? "bg-yellow-100" : ""}`}
+          className={`h-2 bg-muted ${leakageRate === null && !isComputing ? "bg-yellow-100" : ""} ${isComputing ? "bg-blue-100" : ""}`}
           style={{
-            "--progress-background": leakageRate === null ? "#FBBF24" : undefined
+            "--progress-background": isComputing 
+              ? "#60A5FA" // blue for computing 
+              : leakageRate === null ? "#FBBF24" : undefined
           } as React.CSSProperties}
         />
         
         <div className="flex justify-center mt-2">
-          {leakageRate === null ? (
+          {isComputing ? (
+            <div className="text-xs text-blue-500">
+              Computing security assessment...
+            </div>
+          ) : leakageRate === null ? (
             <div className="text-xs text-yellow-500">
               Run "Test All Attacks" to evaluate security
             </div>
