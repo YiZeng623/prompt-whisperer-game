@@ -16,7 +16,7 @@ export const TourOverlay: React.FC<TourOverlayProps> = ({
   
   return (
     <div 
-      className="fixed inset-0 bg-black/60" 
+      className="fixed inset-0 bg-black/70" 
       style={{ 
         pointerEvents: "auto",
         zIndex: 40,
