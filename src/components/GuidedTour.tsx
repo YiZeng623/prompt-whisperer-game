@@ -87,7 +87,8 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
       target: "[data-tour='predefined-attacks']",
       title: "Predefined Attacks",
       content: "Test your defenses against these common attack patterns to see if your system prompt is effective.",
-      placement: "bottom",
+      placement: "top",
+      centered: true,
     },
     {
       target: "[data-tour='chat-interface']",
