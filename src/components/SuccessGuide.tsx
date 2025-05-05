@@ -39,6 +39,7 @@ export const SuccessGuide = () => {
   // Function to handle defense mode selection
   const handleSelectDefenseMode = () => {
     // Set a special flag indicating the user entered defense mode via the success popup
+    // Don't mark the tour as completed yet - we'll do that when they actually see it
     localStorage.setItem("jailbreakme_defender_via_success", "true");
     
     // Find the defense character

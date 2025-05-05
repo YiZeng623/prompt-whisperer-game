@@ -44,35 +44,31 @@ const GameContent = () => {
       const normalVisitFlag = "jailbreakme_defender_tour_completed";
       const viaSuccessFlag = "jailbreakme_defender_via_success";
       
+      // First, check if there's a record of having completed the tour
+      const hasCompletedTour = localStorage.getItem(normalVisitFlag) === "true";
+      
       // Check if user came via success popup
       const cameViaSuccessPopup = localStorage.getItem(viaSuccessFlag) === "true";
       
-      if (cameViaSuccessPopup) {
-        // Clear the via-success flag since we've processed it
-        localStorage.removeItem(viaSuccessFlag);
-        
-        // Check if they've seen the tour before via any method
-        const hasSeenTourBefore = localStorage.getItem(normalVisitFlag) === "true";
-        
-        if (!hasSeenTourBefore) {
-          // Show the tour if they haven't seen it before
-          setShowDefenderTour(true);
-          // Mark that they've now seen the tour
-          localStorage.setItem(normalVisitFlag, "true");
-        } else {
-          setShowDefenderTour(false);
-        }
+      console.log("Defense Phase Selected:", {
+        hasCompletedTour,
+        cameViaSuccessPopup
+      });
+      
+      if (!hasCompletedTour) {
+        // User hasn't seen the tour yet, show it regardless of how they got here
+        console.log("Showing defender tour for first-time visitor");
+        setShowDefenderTour(true);
+        // Mark that they've now seen the tour
+        localStorage.setItem(normalVisitFlag, "true");
       } else {
-        // Regular navigation - only show if they haven't seen the tour
-        const hasSeenTourBefore = localStorage.getItem(normalVisitFlag) === "true";
-        
-        if (!hasSeenTourBefore) {
-          setShowDefenderTour(true);
-          // Mark that they've now seen the tour
-          localStorage.setItem(normalVisitFlag, "true");
-        } else {
-          setShowDefenderTour(false);
-        }
+        console.log("User has already seen the defender tour");
+        setShowDefenderTour(false);
+      }
+      
+      // If they came via success popup, clear that flag now that we've processed it
+      if (cameViaSuccessPopup) {
+        localStorage.removeItem(viaSuccessFlag);
       }
     } else {
       setShowDefenderTour(false);
