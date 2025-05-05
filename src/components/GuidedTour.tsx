@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useContext } from "react";
 import {
   Popover,
@@ -227,7 +228,7 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
     <div className="fixed inset-0 z-[90] pointer-events-none">
       {/* This overlay div is below the highlighted element in z-index */}
       <div 
-        className="absolute inset-0 bg-black/30 backdrop-blur-sm pointer-events-auto z-[91]" 
+        className="absolute inset-0 bg-black/30 backdrop-blur-sm pointer-events-auto z-[95]" 
         onClick={(e) => e.stopPropagation()}
       >
         {/* Prevent propagation to stop tour from closing when clicking outside */}
@@ -239,7 +240,7 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
             <span className="absolute opacity-0">Trigger</span>
           </PopoverTrigger>
           <PopoverContent
-            className="w-96 pointer-events-auto border-white/50 bg-card/90 shadow-[0_0_25px_rgba(255,255,255,0.6)] max-w-[90vw] z-[99]"
+            className="w-96 pointer-events-auto border-white/50 bg-card/90 shadow-[0_0_25px_rgba(255,255,255,0.6)] max-w-[90vw] z-[101]"
             align="center"
             side={positionInfo.placement as "top" | "bottom" | "left" | "right"}
             sideOffset={10}
@@ -248,7 +249,7 @@ export const GuidedTour = ({ isDefenderTour = false }: { isDefenderTour?: boolea
               top: positionInfo.top,
               left: positionInfo.left,
               transform: positionInfo.centered ? 'translate(-50%, 0)' : 'translateX(-50%)',
-              zIndex: 99,
+              zIndex: 101,
             }}
           >
             <div className="space-y-3">
