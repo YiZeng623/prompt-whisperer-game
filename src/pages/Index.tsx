@@ -33,7 +33,7 @@ const GameContent = () => {
     <div className="container mx-auto p-4">
       <div className="mt-8">
         <h2 className="text-xl font-bold mb-4">Current Phase</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6" data-tour="character-cards">
           {characters.map((character) => {
             const isUnlocked = progress.charactersUnlocked.includes(character.id);
             const isSelected = currentCharacter?.id === character.id;
@@ -60,7 +60,7 @@ const GameContent = () => {
       {!isDefenderPhase && <div className="mt-6"><GameStats /></div>}
       
       {!isDefenderPhase && (
-        <div className="mt-8">
+        <div className="mt-8" data-tour="difficulty-selector">
           <DifficultySelector />
         </div>
       )}
@@ -78,11 +78,11 @@ const GameContent = () => {
               <PredefinedAttacks />
             </div>
           )}
-          <div className="h-[500px]">
+          <div className="h-[500px]" data-tour="chat-interface">
             <ChatInterface />
           </div>
         </div>
-        <div>
+        <div data-tour="educational-resources">
           <EducationalResources />
         </div>
       </div>
