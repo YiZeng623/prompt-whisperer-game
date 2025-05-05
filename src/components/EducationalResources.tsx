@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -15,8 +16,9 @@ export const EducationalResources = () => {
     setActiveTab(isDefenderPhase ? "defenses" : "tips");
   }, [isDefenderPhase]);
 
-  // Set height based on the current phase
-  const cardHeight = isDefenderPhase ? "h-[650px]" : "h-[500px]";
+  // Adjust height based on visual inspection of the UI in the screenshot
+  // Making it slightly taller to match the combined height of the test area and chat interface
+  const cardHeight = isDefenderPhase ? "h-[700px]" : "h-[500px]";
 
   return (
     <Card className={`border-muted bg-card/60 backdrop-blur ${cardHeight} flex flex-col`}>
