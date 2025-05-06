@@ -72,7 +72,7 @@ const GameContent = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <div className="mt-8">
+      <div className="mt-0">
         <h2 className="text-xl font-bold mb-4">Current Phase</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6" data-tour="character-cards">
           {characters.map((character) => {
@@ -152,7 +152,6 @@ const Index = () => {
     <GameProvider>
       <div className="min-h-screen bg-background text-foreground hex-pattern">
         <div className="relative min-h-screen">
-          <div className="scanner absolute inset-0 pointer-events-none"></div>
           <GameHeader />
           <GameContent />
           <WelcomeModal />

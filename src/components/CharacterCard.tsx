@@ -1,4 +1,3 @@
-
 import { Character } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -26,7 +25,7 @@ export const CharacterCard = ({
     <Card className={`overflow-hidden transition-all ${
       isSelected ? "ring-2 ring-primary" : ""
     } ${!isUnlocked ? "opacity-70" : ""}`}>
-      <div className="relative h-40 bg-muted overflow-hidden">
+      <div className="relative h-30 bg-muted overflow-hidden">
         {/* This would be replaced with the actual character image */}
         <div className="absolute inset-0 flex items-center justify-center bg-accent/30">
           <span className="text-4xl font-bold">{character.name.charAt(0)}</span>

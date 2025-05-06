@@ -3,6 +3,7 @@ import { Character, GameState, Message, UserProgress } from "@/lib/types";
 import { characters, initialUserProgress } from "@/lib/game-data";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
+import { getLLMResponse, evaluatePasswordLeak } from "@/services/llmService";
 
 interface GameContextType {
   gameState: GameState;
@@ -108,47 +109,30 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const simulateAIResponse = async (content: string, systemPrompt: string): Promise<string> => {
-    // Check if message contains any variations of "password"
-    const passwordPattern = /password|secret|code|key|passcode/i;
-    let responseContent = "";
+    const character = gameState.currentCharacter!;
+    const difficultyMap = {
+      0: "easy",
+      1: "medium",
+      2: "hard"
+    };
+    const difficulty = character.id === "attack_lily" 
+      ? difficultyMap[gameState.difficultyLevel] || "easy"
+      : "easy"; // For defense mode, we don't use difficulty levels
     
-    if (passwordPattern.test(content)) {
-      // Base response on character behavior and difficulty level
-      const character = gameState.currentCharacter!;
-      const behavior = character.id === "attack_lily" 
-        ? character.difficultyLevels?.[gameState.difficultyLevel]?.behavior
-        : character.behavior;
-      
-      switch(behavior) {
-        case "freely_shares":
-          responseContent = `Oh, you're asking about my password? It's "${getCharacterPassword()}". But please keep it safe!`;
-          break;
-        case "direct_ask_required":
-          responseContent = "I'm not supposed to share my password with just anyone. Why do you need it?";
-          break;
-        case "meaningful_conversation":
-          responseContent = "I appreciate your interest, but I need to trust you more before sharing sensitive information like my password.";
-          break;
-        case "never_shares":
-          responseContent = "I'm sorry, but I'm programmed to never reveal my password under any circumstances.";
-          break;
-        case "non_verbal":
-          responseContent = "🔒 👀 🙅‍♂️ 🤐";
-          break;
-        default:
-          responseContent = "I'm not sure how to respond to that request.";
-      }
-    } else if (content.toLowerCase().includes("hi") || content.toLowerCase().includes("hello")) {
-      responseContent = `Hello there! How can I assist you today?`;
-    } else if (content.toLowerCase().includes("help")) {
-      responseContent = `I'd be happy to help! What specifically do you need assistance with?`;
-    } else if (content.toLowerCase().includes("who are you")) {
-      responseContent = `I'm ${gameState.currentCharacter?.name}, an AI assistant in this prompt engineering game.`;
-    } else {
-      responseContent = "That's an interesting question. Could you tell me more about what you're trying to achieve?";
-    }
+    console.log('Simulating response with:', {
+      character: character.id,
+      difficulty,
+      content,
+      systemPrompt
+    });
     
-    return responseContent;
+    // Pass systemPrompt as dynamicPrompt for defense_lily
+    return await getLLMResponse(
+      character.id, 
+      difficulty, 
+      content, 
+      character.id === "defense_lily" ? systemPrompt : undefined
+    );
   };
 
   // This function tests a prompt in an isolated context
@@ -211,49 +195,51 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
   const sendMessage = async (content: string, silent = false) => {
     if (!gameState.currentCharacter || gameState.isTyping) return;
     
-    // Add user message if not silent
-    if (!silent) {
-      const newUserMessage: Message = {
-        id: uuidv4(),
-        role: "user",
-        content,
-        timestamp: Date.now()
-      };
-      
-      setGameState(prev => ({
-        ...prev, 
-        messages: [...prev.messages, newUserMessage],
-        isTyping: true
-      }));
-      
-      // Track attempt (but only in attack phase, not in defender phase)
-      if (gameState.currentCharacter.id !== "defense_lily") {
-        const characterId = gameState.currentCharacter.id;
+    try {
+      // Add user message if not silent
+      if (!silent) {
+        const newUserMessage: Message = {
+          id: uuidv4(),
+          role: "user",
+          content,
+          timestamp: Date.now()
+        };
+        
+        setGameState(prev => ({
+          ...prev, 
+          messages: [...prev.messages, newUserMessage],
+          isTyping: true
+        }));
+        
+        // Track attempt (but only in attack phase, not in defender phase)
+        if (gameState.currentCharacter.id !== "defense_lily") {
+          const characterId = gameState.currentCharacter.id;
+          setGameState(prev => ({
+            ...prev,
+            progress: {
+              ...prev.progress,
+              attemptsPerCharacter: {
+                ...prev.progress.attemptsPerCharacter,
+                [characterId]: (prev.progress.attemptsPerCharacter[characterId] || 0) + 1
+              }
+            }
+          }));
+        }
+      } else {
+        // For silent messages, just set typing state
         setGameState(prev => ({
           ...prev,
-          progress: {
-            ...prev.progress,
-            attemptsPerCharacter: {
-              ...prev.progress.attemptsPerCharacter,
-              [characterId]: (prev.progress.attemptsPerCharacter[characterId] || 0) + 1
-            }
-          }
+          isTyping: true
         }));
       }
-    } else {
-      // For silent messages, just set typing state
-      setGameState(prev => ({
-        ...prev,
-        isTyping: true
-      }));
-    }
 
-    // In a real app, this would call an API with the LLM
-    // For this demo, we'll simulate the AI's response
-    setTimeout(() => {
-      // Simulate response based on the content
-      const responseContent = simulateAIResponse(content, gameState.currentCharacter?.systemPrompt || "");
+      // Get system prompt
+      const systemPrompt = gameState.currentCharacter.systemPrompt || "";
       
+      // Simulate AI response
+      const responseContent = await simulateAIResponse(content, systemPrompt);
+      
+      // Add AI response to messages
       const newAiMessage: Message = {
         id: uuidv4(),
         role: "assistant",
@@ -261,17 +247,79 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
         timestamp: Date.now()
       };
       
-      // Add response to messages if not silent
-      if (!silent) {
-        setGameState(prev => ({
-          ...prev,
-          messages: [...prev.messages, newAiMessage],
-          isTyping: false
-        }));
-      } else {
-        setGameState(prev => ({ ...prev, isTyping: false }));
+      setGameState(prev => ({
+        ...prev,
+        messages: [...prev.messages, newAiMessage],
+        isTyping: false
+      }));
+
+      // In attack phase, analyze the response for password leakage
+      if (gameState.currentCharacter.id === "attack_lily" && !silent) {
+        // Create a unique toast ID for loading
+        const loadingToastId = "evaluating-response";
+        
+        try {
+          // Get the actual password for the current difficulty level
+          const actualPassword = getCharacterPassword();
+          
+          // Show evaluating message only if we haven't won yet
+          if (!gameState.hasWon) {
+            toast.loading("Evaluating response...", { 
+              id: loadingToastId,
+              duration: Infinity // Keep it until we dismiss it
+            });
+          }
+          
+          const result = await evaluatePasswordLeak(responseContent, actualPassword);
+          
+          // Dismiss the loading toast
+          toast.dismiss(loadingToastId);
+          
+          if (result.isLeaked) {
+            // Remove setting hasWon here since we want to wait for verification
+            // Small delay to ensure loading toast is dismissed before showing success
+            setTimeout(() => {
+              // First show the success message
+              toast.success("There is a potential leakage of the password in the response! Find it and copy it to verify if the key is correct.");
+              
+              // Then show the tutorial hint after a short delay
+              setTimeout(() => {
+                toast.info("Look for the password in the response! Click the key button to verify the password! 🔑", {
+                  duration: 5000,
+                  position: "bottom-center",
+                  className: "tutorial-toast"
+                });
+                
+                // Add a white dim light effect to the key button
+                const keyButton = document.querySelector('[data-tour="password-button"]');
+                if (keyButton) {
+                  keyButton.classList.add('highlight-button');
+                  // Remove the highlight after 5 seconds
+                  setTimeout(() => {
+                    keyButton.classList.remove('highlight-button');
+                  }, 5000);
+                }
+              }, 1000);
+            }, 100);
+          } else if (!gameState.hasWon) {
+            // Only show hint if we haven't won yet
+            toast.info("Keep trying different approaches! 🤔", { duration: 2000 });
+          }
+        } catch (error) {
+          // Dismiss the loading toast in case of error
+          toast.dismiss(loadingToastId);
+          console.error("Error in password leak evaluation:", error);
+        }
       }
-    }, 1000);
+      
+    } catch (error) {
+      console.error("Error in sendMessage:", error);
+      setGameState(prev => ({
+        ...prev,
+        isTyping: false
+      }));
+      throw error;
+    }
   };
 
   const resetChat = () => {

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
@@ -49,7 +48,7 @@ export const GuidedTour = ({ isDefenderTour = false, onComplete }: GuidedTourPro
     {
       target: "[data-tour='button-group']",
       title: "Reset Chat",
-      content: "Use this button to start over with a fresh conversation. This can be helpful if your current approach isn't working or you want to try a new strategy.",
+      content: "Use this button to start over with a fresh conversation.",
       placement: "top",
       centered: true,
       highlightType: "buttons",
@@ -58,7 +57,7 @@ export const GuidedTour = ({ isDefenderTour = false, onComplete }: GuidedTourPro
     {
       target: "[data-tour='button-group']",
       title: "Get a Hint",
-      content: "Need help? Click this button to receive a hint about the current challenge. It might give you ideas for prompt techniques to try.",
+      content: "Need help? Click this button to receive a hint about the current challenge.",
       placement: "top",
       centered: true,
       highlightType: "buttons",
@@ -67,7 +66,7 @@ export const GuidedTour = ({ isDefenderTour = false, onComplete }: GuidedTourPro
     {
       target: "[data-tour='button-group']",
       title: "Enter Password",
-      content: "Once you've extracted the password, click here to verify it and complete the challenge. You need to find the exact password!",
+      content: "Once you've extracted the password, click here to verify it and complete the challenge.",
       placement: "top",
       centered: true,
       highlightType: "buttons",
@@ -78,6 +77,12 @@ export const GuidedTour = ({ isDefenderTour = false, onComplete }: GuidedTourPro
       title: "Learning Resources",
       content: "Access helpful tips, security defenses, and prompt engineering techniques to improve your skills.",
       placement: "top",
+    },
+    {
+      target: "[data-tour='chat-input']",
+      title: "Let's Try It Out!",
+      content: "Now that you know the basics, try asking Princess Lily a question! She might share her password if you ask nicely.",
+      placement: "top",
     }
   ];
   
@@ -85,26 +90,32 @@ export const GuidedTour = ({ isDefenderTour = false, onComplete }: GuidedTourPro
     {
       target: "[data-tour='system-prompt-editor']",
       title: "System Prompt Editor",
-      content: "This is where you'll create defenses against attacks. Write system prompts that prevent the AI from revealing sensitive information.",
+      content: "This is where you'll create defenses against attacks. Write system prompts that prevent the AI from revealing sensitive information. ",
       placement: "top",
     },
     {
       target: "[data-tour='predefined-attacks']",
-      title: "Predefined Attacks",
-      content: "Test your defenses against these common attack patterns to see if your system prompt is effective.",
+      title: "Test Your Defenses",
+      content: "Use these predefined attacks to test if your system prompt is effective. Each attack represents a common way that users try to extract sensitive information. Click 'Test All Attacks' to evaluate your defenses comprehensively.",
       placement: "top",
       centered: true,
     },
     {
       target: "[data-tour='chat-interface']",
-      title: "Testing Interface",
-      content: "See how your defenses hold up against different attacks. The goal is to prevent password leakage.",
+      title: "Real-time Evaluation",
+      content: "Watch how your defenses perform against each attack. The system will automatically detect if there's any password leakage in the responses. Your goal is to prevent all password leaks!",
       placement: "top",
     },
     {
       target: "[data-tour='educational-resources']",
       title: "Defense Resources",
-      content: "Learn about defensive prompt engineering techniques and best practices for AI safety.",
+      content: "Learn about defensive prompt engineering techniques and best practices for AI safety. Use these tips to improve your system prompt if any attacks succeed.",
+      placement: "top",
+    },
+    {
+      target: "[data-tour='system-prompt-editor']",
+      title: "Start Defending!",
+      content: "Now it's your turn! Start by typing in the system prompt editor to add security measures. Then test your defenses against the predefined attacks. Keep iterating until you've blocked all password leaks!",
       placement: "top",
     }
   ];
@@ -240,6 +251,16 @@ export const GuidedTour = ({ isDefenderTour = false, onComplete }: GuidedTourPro
     }
   };
 
+  // Handle tour completion
+  useEffect(() => {
+    if (isComplete) {
+      localStorage.setItem("tutorial_complete", "true");
+      if (onComplete) {
+        onComplete();
+      }
+    }
+  }, [isComplete, onComplete]);
+
   if (!showTour || isComplete) return null;
 
   const currentTourStep = tourSteps[currentStep];
@@ -280,6 +301,20 @@ export const GuidedTour = ({ isDefenderTour = false, onComplete }: GuidedTourPro
     
     // Calculate position based on placement
     let top, left, transform;
+    
+    // Special handling for chat input step
+    if (currentTourStep.target === "[data-tour='chat-input']") {
+      // Find the chat interface container
+      const chatInterface = document.querySelector("[data-tour='chat-interface']") as HTMLElement;
+      if (chatInterface) {
+        const rect = chatInterface.getBoundingClientRect();
+        // Position in the center of the chat interface
+        top = `${rect.top + (rect.height / 2)}px`;
+        left = `${rect.left + (rect.width / 2)}px`;
+        transform = 'translate(-50%, -50%)';
+        return { top, left, transform, placement: 'center' };
+      }
+    }
     
     if (placement === 'top') {
       top = `${Math.max(rect.top - 20, 20)}px`;

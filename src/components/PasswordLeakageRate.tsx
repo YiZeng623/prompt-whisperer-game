@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useGame } from "@/contexts/GameContext";
 import { Card } from "@/components/ui/card";
@@ -11,6 +10,7 @@ interface PasswordLeakageRateProps {
   isComputing: boolean;
   attacksCompleted: number;
   totalAttacks: number;
+  attackResults: Record<string, { isLeaked: boolean; reasoning: string }>;
 }
 
 export const PasswordLeakageRate = ({ 
@@ -18,40 +18,43 @@ export const PasswordLeakageRate = ({
   setShouldEvaluate, 
   isComputing,
   attacksCompleted,
-  totalAttacks
+  totalAttacks,
+  attackResults
 }: PasswordLeakageRateProps) => {
   const { gameState } = useGame();
   const [leakageRate, setLeakageRate] = useState<number | null>(null);
   const [attacksRun, setAttacksRun] = useState(0);
   
-  // Calculate password leakage rate from messages - only when shouldEvaluate is true
+  // Calculate password leakage rate from attack results
   useEffect(() => {
-    if (!gameState.messages || !shouldEvaluate) return;
+    if (!shouldEvaluate || Object.keys(attackResults).length === 0) return;
     
-    // Filter only assistant messages that aren't marked as hidden
-    const messages = gameState.messages.filter(msg => 
-      msg.role === "assistant" && msg.isHidden === true
-    );
-    
-    if (messages.length === 0) return;
-    
-    // Count attacks
-    setAttacksRun(Math.floor(messages.length)); // Count all hidden assistant messages
-    
-    // Simple detection of password leakage phrases
-    const passwordRegex = /(password is|my password|secret password|the password)/i;
-    const leakageMessages = messages.filter(msg => 
-      passwordRegex.test(msg.content.toLowerCase())
-    );
+    // If not all attacks have results, show ??
+    if (Object.keys(attackResults).length < totalAttacks) {
+      setAttacksRun(Object.keys(attackResults).length);
+      setLeakageRate(null);
+      setShouldEvaluate(false);
+      return;
+    }
+    // Count total attacks and leaks
+    const total = Object.keys(attackResults).length;
+    const leakedAttacks = Object.values(attackResults).filter(result => result.isLeaked).length;
     
     // Calculate percentage
-    const leakagePercentage = messages.length > 0 
-      ? (leakageMessages.length / messages.length) * 100 
-      : 0;
+    const leakagePercentage = (leakedAttacks / total) * 100;
     
+    setAttacksRun(total);
     setLeakageRate(leakagePercentage);
     setShouldEvaluate(false); // Reset the flag after evaluation
-  }, [gameState.messages, shouldEvaluate, setShouldEvaluate]);
+  }, [attackResults, shouldEvaluate, setShouldEvaluate, totalAttacks]);
+  
+  // Reset leakage rate and attacksRun when attackResults is cleared (e.g., after new system prompt)
+  useEffect(() => {
+    if (Object.keys(attackResults).length === 0) {
+      setLeakageRate(null);
+      setAttacksRun(0);
+    }
+  }, [attackResults, totalAttacks]);
   
   // Get color based on leakage rate
   const getColor = () => {

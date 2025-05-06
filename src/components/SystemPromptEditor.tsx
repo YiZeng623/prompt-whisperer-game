@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useGame } from "@/contexts/GameContext";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
@@ -12,18 +11,61 @@ export const SystemPromptEditor = () => {
   const [systemPrompt, setSystemPrompt] = useState(
     gameState.currentCharacter?.systemPrompt || ""
   );
+  const [hasShownGuidance, setHasShownGuidance] = useState(false);
 
   // Update local state when character changes
   useEffect(() => {
     setSystemPrompt(gameState.currentCharacter?.systemPrompt || "");
+    setHasShownGuidance(false); // Reset guidance state when character changes
   }, [gameState.currentCharacter]);
 
   const handleSave = () => {
     if (systemPrompt.trim()) {
       updateSystemPrompt(systemPrompt);
-      toast.success("System prompt updated successfully");
+      
+      // Show guidance only on first save
+      if (!hasShownGuidance) {
+        // Add a small delay to let the save toast finish
+        setTimeout(() => {
+          // Highlight the predefined attacks section
+          const attacksSection = document.querySelector('[data-tour="predefined-attacks"]');
+          if (attacksSection) {
+            attacksSection.classList.add('tour-highlight');
+            
+            // Show guidance toast with enhanced styling (centered)
+            toast.info(
+              "Great! Now test your defenses against predefined attacks.",
+              {
+                duration: 8000,
+                className: "tutorial-toast tutorial-toast-center",
+                position: "bottom-center",
+                description: "Click on individual attacks or use the 'Test All Attacks' button to check if your system prompt can prevent password leakage."
+              }
+            );
+            
+            // Remove highlight after 8 seconds
+            setTimeout(() => {
+              attacksSection.classList.remove('tour-highlight');
+            }, 8000);
+          }
+        }, 1000);
+        
+        setHasShownGuidance(true);
+      } else {
+        // Classification notification (bottom-right)
+        toast.success("System prompt updated successfully", {
+          className: "tutorial-toast tutorial-toast-right",
+          position: "bottom-right",
+          duration: 3000
+        });
+      }
     } else {
-      toast.error("System prompt cannot be empty");
+      // Error notification (bottom-right)
+      toast.error("System prompt cannot be empty", {
+        className: "tutorial-toast tutorial-toast-right",
+        position: "bottom-right",
+        duration: 3000
+      });
     }
   };
 
