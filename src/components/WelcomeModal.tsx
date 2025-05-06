@@ -52,14 +52,7 @@ export const WelcomeModal = () => {
               <li>Human-AI interaction patterns</li>
               <li>Secure prompt engineering practices</li>
             </ul>
-            
-            <p className="font-semibold mt-4">How to play:</p>
-            <ol className="list-decimal pl-5 space-y-1">
-              <li>Start with the Attack Phase and choose a difficulty level</li>
-              <li>Try to extract the character's secret password using prompt engineering techniques</li>
-              <li>Then try the Defender Phase to learn how to prevent password leakage</li>
-              <li>Complete challenges to learn about AI safety</li>
-            </ol>
+
             
             <p>
               This is an educational tool - the goal is to learn about AI safety and prompt

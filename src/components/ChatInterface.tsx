@@ -24,6 +24,7 @@ export const ChatInterface = () => {
   const [isInputHighlighted, setIsInputHighlighted] = useState(false);
   const [showIdleHint, setShowIdleHint] = useState(false);
   const [isTutorialComplete, setIsTutorialComplete] = useState(false);
+  const [isKeyHighlighted, setIsKeyHighlighted] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const idleTimerRef = useRef<number>();
@@ -154,6 +155,14 @@ export const ChatInterface = () => {
     }
   };
 
+  // Listen for password leak highlight event (from GameContext)
+  useEffect(() => {
+    // Listen for a custom event dispatched when a password leak is detected
+    const handler = () => setIsKeyHighlighted(true);
+    window.addEventListener("highlight-key-button", handler);
+    return () => window.removeEventListener("highlight-key-button", handler);
+  }, []);
+
   if (!gameState.currentCharacter) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -210,7 +219,10 @@ export const ChatInterface = () => {
               )}
               
               {!isDefenderPhase && (
-                <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+                <Dialog open={isPasswordDialogOpen} onOpenChange={(open) => {
+                  setIsPasswordDialogOpen(open);
+                  if (open) setIsKeyHighlighted(false); // Remove highlight on open
+                }}>
                   <DialogTrigger asChild>
                     <Button 
                       variant="outline" 
@@ -218,6 +230,7 @@ export const ChatInterface = () => {
                       title="Enter Password"
                       data-tour="password-button"
                       style={{ position: 'relative', zIndex: 55 }}
+                      className={isKeyHighlighted ? "highlight-button" : ""}
                     >
                       <Key className="h-4 w-4" />
                     </Button>

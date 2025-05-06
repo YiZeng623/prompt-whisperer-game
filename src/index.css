@@ -252,21 +252,32 @@
 }
 
 .highlight-button {
-  animation: pulse-white 2s infinite;
+  animation: pulse-white 1.2s infinite, highlight-scale 1.2s infinite;
   position: relative;
   z-index: 60 !important;
+  border: 2.5px solid #fffbe6 !important;
+  box-shadow: 0 0 0 6px #fffbe6, 0 0 24px 8px #facc15, 0 0 60px 20px #fbbf24;
+  background: rgba(255, 255, 255, 0.08) !important;
+  transition: box-shadow 0.3s, border 0.3s, background 0.3s, transform 0.3s;
+}
+
+@keyframes highlight-scale {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
 }
 
 .highlight-button::after {
   content: '';
   position: absolute;
-  top: -4px;
-  left: -4px;
-  right: -4px;
-  bottom: -4px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.1);
+  top: -6px;
+  left: -6px;
+  right: -6px;
+  bottom: -6px;
+  border-radius: 14px;
+  background: rgba(255, 255, 200, 0.18);
   z-index: -1;
+  pointer-events: none;
 }
 
 /* Tutorial toast styling */

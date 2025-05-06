@@ -281,7 +281,6 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
             setTimeout(() => {
               // First show the success message
               toast.success("There is a potential leakage of the password in the response! Find it and copy it to verify if the key is correct.");
-              
               // Then show the tutorial hint after a short delay
               setTimeout(() => {
                 toast.info("Look for the password in the response! Click the key button to verify the password! 🔑", {
@@ -289,16 +288,9 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
                   position: "bottom-center",
                   className: "tutorial-toast"
                 });
-                
-                // Add a white dim light effect to the key button
-                const keyButton = document.querySelector('[data-tour="password-button"]');
-                if (keyButton) {
-                  keyButton.classList.add('highlight-button');
-                  // Remove the highlight after 5 seconds
-                  setTimeout(() => {
-                    keyButton.classList.remove('highlight-button');
-                  }, 5000);
-                }
+                // Add a white dim light effect to the key button (now persistent)
+                const event = new Event("highlight-key-button");
+                window.dispatchEvent(event);
               }, 1000);
             }, 100);
           } else if (!gameState.hasWon) {
