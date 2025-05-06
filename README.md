@@ -1,73 +1,36 @@
-# Welcome to your Lovable project
+# Prompt Whisperer
 
-## Project info
+## Project Summary
 
-**URL**: https://lovable.dev/projects/13560391-185c-4571-bd49-6c86de73d753
+Prompt Whisperer is an interactive web app that teaches users about prompt injection vulnerabilities and AI safety through hands-on gameplay. Users alternate between attacking (extracting a secret password from an AI) and defending (writing system prompts to prevent leaks), gaining practical experience with both offensive and defensive prompt engineering. Unlike typical static tutorials, this project uniquely combines real-time LLM evaluation, guided tours, and gamified feedback to create an engaging, educational, and visually polished learning environment.
 
-## How can I edit this code?
+## Libraries and Frameworks
 
-There are several ways of editing your application.
+- **React** (UI framework)
+- **Vite** (build tool)
+- **TypeScript** (type safety)
+- **Tailwind CSS** (utility-first CSS framework)
+- **shadcn/ui** (modern, accessible React UI components)
+- **Lucide React** (icon library)
+- **Sonner** (toast notifications)
+- **uuid** (unique ID generation)
+- **Radix UI** (accessible UI primitives, via shadcn/ui)
+- **Together API** (for LLM evaluation)
+- **Embla Carousel** (carousel/slider, if used in UI)
+- **class-variance-authority** (for managing Tailwind class variants)
 
-**Use Lovable**
+## Getting Started
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/13560391-185c-4571-bd49-6c86de73d753) and start prompting.
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Start the development server:
+   ```bash
+   npm run dev
+   ```
+3. Open your browser at `https://prompt-whisperer-game.vercel.app/` (or the local port shown in your terminal).
 
-Changes made via Lovable will be committed automatically to this repo.
+---
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/13560391-185c-4571-bd49-6c86de73d753) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+For more details, see the code and comments in the repository.
