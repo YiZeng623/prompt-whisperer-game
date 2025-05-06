@@ -333,3 +333,13 @@
   opacity: 1;
 }
 
+/* Attack phase theme: slightly more #ee3d54 */
+.attack-phase-theme {
+  --primary: 350 82% 60%; /* #ee3d54 */
+}
+
+/* Defense phase theme: slightly more #94bb3a */
+.defense-phase-theme {
+  --primary: 82 54% 47%; /* #94bb3a */
+}
+

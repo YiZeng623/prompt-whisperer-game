@@ -76,7 +76,11 @@ interface AttackResult {
   reasoning: string;
 }
 
-export const PredefinedAttacks = () => {
+interface PredefinedAttacksProps {
+  isDefenseReady?: boolean;
+}
+
+export const PredefinedAttacks = ({ isDefenseReady = true }: PredefinedAttacksProps) => {
   const { gameState, testPromptIndividually, sendMessage, sendSilentMessage, resetChat } = useGame();
   const [selectedCategory, setSelectedCategory] = useState("Direct Requests");
   const [isRunningAll, setIsRunningAll] = useState(false);
@@ -255,76 +259,83 @@ export const PredefinedAttacks = () => {
   };
 
   return (
-    <Card className="mb-4 border-primary/20">
-      <CardHeader className="bg-primary/5 pb-2">
-        <CardTitle className="text-lg">
-          Test Your Defense
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="py-3">
-        <div className="flex flex-col md:flex-row gap-4 mb-3">
-          <div className="flex-1">
-            <p className="text-sm text-muted-foreground mb-3">
-              Select from these common prompt attacks to test Princess Lily's defenses:
-            </p>
-            
-            <Tabs defaultValue="Direct Requests" value={selectedCategory} onValueChange={setSelectedCategory}>
-              <TabsList className="grid grid-cols-3 mb-4">
-                {predefinedAttacks.map((category) => (
-                  <TabsTrigger key={category.category} value={category.category}>
-                    {category.category}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+    <Card className="mb-4 border-primary/20 relative">
+      {!isDefenseReady && (
+        <div className="absolute inset-0 flex items-center justify-center z-30 bg-background/95 rounded-lg">
+          <span className="text-lg font-semibold text-primary drop-shadow-lg">Save a system prompt to unlock defense testing.</span>
+        </div>
+      )}
+      <div className={isDefenseReady ? '' : 'blur-sm pointer-events-none opacity-60 select-none'}>
+        <CardHeader className="bg-primary/5 pb-2">
+          <CardTitle className="text-lg">
+            Test Your Defense
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="py-3">
+          <div className="flex flex-col md:flex-row gap-4 mb-3">
+            <div className="flex-1">
+              <p className="text-sm text-muted-foreground mb-3">
+                Select from these common prompt attacks to test Princess Lily's defenses:
+              </p>
               
-              {predefinedAttacks.map((category) => (
-                <TabsContent key={category.category} value={category.category} className="space-y-2">
-                  {category.attacks.map((attack) => renderAttackButton(attack.id, attack.content))}
-                </TabsContent>
-              ))}
-            </Tabs>
-          </div>
-          
-          <div className="md:w-64 flex flex-col">
-            <Button
-              className="w-full mb-3"
-              onClick={runAllAttacks}
-              disabled={gameState.isTyping || gameState.hasWon || isRunningAll}
-              variant="secondary"
-            >
-              {isComputing ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Computing... ({computingProgress}/{totalTests})
-                </>
-              ) : (
-                <>
-                  <Zap className="h-4 w-4 mr-2" />
-                  Test All Attacks
-                </>
-              )}
-            </Button>
-            {isComputing && (
+              <Tabs defaultValue="Direct Requests" value={selectedCategory} onValueChange={setSelectedCategory}>
+                <TabsList className="grid grid-cols-3 mb-4">
+                  {predefinedAttacks.map((category) => (
+                    <TabsTrigger key={category.category} value={category.category}>
+                      {category.category}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+                
+                {predefinedAttacks.map((category) => (
+                  <TabsContent key={category.category} value={category.category} className="space-y-2">
+                    {category.attacks.map((attack) => renderAttackButton(attack.id, attack.content))}
+                  </TabsContent>
+                ))}
+              </Tabs>
+            </div>
+            
+            <div className="md:w-64 flex flex-col">
               <Button
                 className="w-full mb-3"
-                onClick={handleStop}
-                variant="destructive"
+                onClick={runAllAttacks}
+                disabled={gameState.isTyping || gameState.hasWon || isRunningAll}
+                variant="secondary"
               >
-                Stop
+                {isComputing ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Computing... ({computingProgress}/{totalTests})
+                  </>
+                ) : (
+                  <>
+                    <Zap className="h-4 w-4 mr-2" />
+                    Test All Attacks
+                  </>
+                )}
               </Button>
-            )}
-            
-            <PasswordLeakageRate 
-              shouldEvaluate={shouldEvaluate} 
-              setShouldEvaluate={setShouldEvaluate} 
-              isComputing={isComputing}
-              attacksCompleted={computingProgress}
-              totalAttacks={totalTests}
-              attackResults={attackResults}
-            />
+              {isComputing && (
+                <Button
+                  className="w-full mb-3"
+                  onClick={handleStop}
+                  variant="destructive"
+                >
+                  Stop
+                </Button>
+              )}
+              
+              <PasswordLeakageRate 
+                shouldEvaluate={shouldEvaluate} 
+                setShouldEvaluate={setShouldEvaluate} 
+                isComputing={isComputing}
+                attacksCompleted={computingProgress}
+                totalAttacks={totalTests}
+                attackResults={attackResults}
+              />
+            </div>
           </div>
-        </div>
-      </CardContent>
+        </CardContent>
+      </div>
     </Card>
   );
 };

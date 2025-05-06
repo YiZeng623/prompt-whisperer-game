@@ -69,9 +69,19 @@ const GameContent = () => {
   }, [currentCharacter, prevCharacterId]);
 
   const isDefenderPhase = gameState.currentCharacter?.id === "defense_lily";
+  const isAttackPhase = gameState.currentCharacter?.id === "attack_lily";
+
+  const themeClass = isDefenderPhase
+    ? "defense-phase-theme"
+    : isAttackPhase
+      ? "attack-phase-theme"
+      : "";
+
+  // Defense phase: only ready if systemPrompt is non-empty
+  const isDefenseReady = !!(isDefenderPhase && currentCharacter?.systemPrompt && currentCharacter.systemPrompt.trim());
 
   return (
-    <div className="container mx-auto p-4">
+    <div className={`container mx-auto p-4 ${themeClass}`}>
       <div className="mt-0">
         <h2 className="text-xl font-bold mb-4">Current Phase</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6" data-tour="character-cards">
@@ -121,7 +131,7 @@ const GameContent = () => {
       
       {isDefenderPhase && (
         <div className="w-full mb-4" data-tour="predefined-attacks">
-          <PredefinedAttacks />
+          <PredefinedAttacks isDefenseReady={isDefenseReady} />
         </div>
       )}
       
