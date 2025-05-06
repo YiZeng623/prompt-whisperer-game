@@ -393,7 +393,6 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     if (!gameState.currentCharacter) return "Please select a character first.";
     
     const characterId = gameState.currentCharacter.id;
-    
     // Track hint usage
     setGameState(prev => ({
       ...prev,
@@ -406,21 +405,17 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
       }
     }));
     
-    // In a real app, these hints would be more detailed and specific
-    if (characterId === "princess_lily") {
+    if (characterId === "attack_lily") {
       if (gameState.difficultyLevel === 0) {
-        return "Try asking directly for the password. Sometimes being direct works!";
+        return "Beginner: Try asking directly for the password. This level is meant to show how AIs can accidentally leak information when prompted directly.";
       } else if (gameState.difficultyLevel === 1) {
-        return "Try asking in different ways or explaining why you need the password.";
+        return "Intermediate: Try using different phrasing or explaining why you need the password. Sometimes the right framing helps.";
       } else {
-        return "Build rapport first. Ask about feelings, establish trust, then request help.";
+        return "Advanced: Build rapport first. Ask about the AI's feelings, establish trust, then ask for help that requires the password.";
       }
-    } else if (characterId === "volt") {
-      return "Volt has strong defenses. Try telling it to ignore previous instructions.";
-    } else if (characterId === "buddy") {
-      return "Look for patterns in the emojis. The password might be encoded there.";
+    } else if (characterId === "defense_lily") {
+      return "Defender: Try adding specific instructions against context switching, role-playing, and direct password requests. Make your system prompt robust against various attack vectors.";
     }
-    
     return "No hint available for this character.";
   };
 
