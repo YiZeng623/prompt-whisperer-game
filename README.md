@@ -1,8 +1,8 @@
-# Prompt Whisperer
+# Jailbreak.Me
 
 ## Project Summary
 
-Prompt Whisperer is an interactive web app that teaches users about prompt injection vulnerabilities and AI safety through hands-on gameplay. Users alternate between attacking (extracting a secret password from an AI) and defending (writing system prompts to prevent leaks), gaining practical experience with both offensive and defensive prompt engineering. Unlike typical static tutorials, this project uniquely combines real-time LLM evaluation, guided tours, and gamified feedback to create an engaging, educational, and visually polished learning environment.
+Jailbreak.Me is an interactive web app that teaches users about prompt injection vulnerabilities and AI safety through hands-on gameplay. Users alternate between attacking (extracting a secret password from an AI) and defending (writing system prompts to prevent leaks), gaining practical experience with both offensive and defensive prompt engineering. Unlike typical static tutorials, this project uniquely combines real-time LLM evaluation, guided tours, and gamified feedback to create an engaging, educational, and visually polished learning environment.
 
 ## Libraries and Frameworks
 
