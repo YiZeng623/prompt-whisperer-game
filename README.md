@@ -5,6 +5,11 @@
   <img src="https://img.youtube.com/vi/uhvTk8c4dwA/0.jpg" width="600">
 </a>
 
+## Prototype (URL):
+
+[Play the Jailbreak.Me](https://prompt-whisperer-game.vercel.app/)
+
+
 ## Project Summary
 
 Jailbreak.Me is an interactive web app that teaches users about prompt injection vulnerabilities and AI safety through hands-on gameplay. Users alternate between attacking (extracting a secret password from an AI) and defending (writing system prompts to prevent leaks), gaining practical experience with both offensive and defensive prompt engineering. Unlike typical static tutorials, this project uniquely combines real-time LLM evaluation, guided tours, and gamified feedback to create an engaging, educational, and visually polished learning environment.
